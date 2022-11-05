@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 
 import com.alibaba.fastjson.JSON;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -78,12 +79,14 @@ public class Client {
             Message message = JSON.parseObject(messageJsonString, Message.class);
             if(message.getChannel().equals("friend")) {
               // Receive new message from friend
+              System.out.println("进入成功");
               AppSceneController appSceneController = App.getAppSceneController();
-              appSceneController.appendText(message);
-              appSceneController.addMessage(message);
+              Platform.runLater(() -> {
+                appSceneController.addMessage(message);
+              });
             }
             else {
-              System.out.println("未知的消息频道");
+              System.out.println("未知的消息频道（未完善群聊）");
             }
           }
           else {

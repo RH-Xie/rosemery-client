@@ -40,7 +40,7 @@ public class App extends Application {
             appLoader = new FXMLLoader(App.class.getResource("AppScene.fxml"));
             Object loadBuffer = appLoader.load();
             root = (Parent)loadBuffer;
-            AppSceneController controller = appLoader.getController();
+            AppSceneController controller = (AppSceneController)appLoader.getController();
             controller.setClient(client);
             Scene scene = new Scene(root);
             stage.setScene(scene);

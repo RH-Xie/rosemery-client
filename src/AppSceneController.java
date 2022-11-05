@@ -96,6 +96,7 @@ public class AppSceneController implements Initializable{
           friendChatList.put(currentFriend.getId(), messageList);
         }
       });
+
     }
 
     @FXML
@@ -144,11 +145,29 @@ public class AppSceneController implements Initializable{
 
     public boolean setClient(Client client) {
       this.client = client;
+      Runnable listenTask = () -> {
+        client.listenMessage();
+      };
+      new Thread(listenTask).start();
       return true;
     }
 
     public void addMessage(Message message) {
-      friendChatList.get(message.getSender()).put(message.getTime(), message);
+      if(message.getChannel().equals("friend")) {
+        if(friendChatList.containsKey(message.getSender())) {
+          friendChatList.get(message.getSender()).put(message.getTime(), message);
+        }
+        else {
+          MessageList messageList = new MessageList();
+          messageList.put(message.getTime(), message);
+          friendChatList.put(message.getSender(), messageList);
+        }
+        if(currentFriend != null && currentFriend.getId() == message.getSender()) {
+          Platform.runLater(() -> {
+            appendText(message);
+          });
+        }
+      }
     }
 
     public void setFriendList(Friend[] friendList) {
