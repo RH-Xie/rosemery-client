@@ -1,6 +1,7 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -83,8 +84,7 @@ public class AppSceneController implements Initializable{
         // Load from memory
         if (friendChatList.containsKey(currentFriend.getId())) {
           for(Message message : friendChatList.get(currentFriend.getId()).values()) {
-            Text text = new Text("[" + message.getTime() + "]" + message.getSender() + ": " + message.getContent());
-            textFlow.getChildren().add(text);
+            appendText(message);
           }
         }
         else {
@@ -123,8 +123,7 @@ public class AppSceneController implements Initializable{
       }
       // "[" + new Date(message.getTime()) + "]" + 
       Platform.runLater(() -> {
-        Text text = new Text(message.getSender() + ": " + message.getContent() + "\n");
-        textFlow.getChildren().addAll(text);  
+        appendText(message);
       });
       System.out.println("Message: " + textFlow.getChildren().size());
       inputTextArea.clear();
@@ -161,9 +160,14 @@ public class AppSceneController implements Initializable{
       this.groupList = groupList;
     }
 
-    public void appendText(String text) {
-      Text t = new Text(text);
-      textFlow.getChildren().add(t);
+    public void appendText(Message message) {
+      if(message.getType().equals("text")) {
+        Date date = new Date(message.getTime());
+        SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
+        String dateString = formatter.format(date);
+        Text text = new Text("[" + dateString + "]"  + message.getSender() + ": " + message.getContent() + "\n");
+        textFlow.getChildren().addAll(text);  
+      }
     }
 
     class SendMessageTask implements Callable<Void> {

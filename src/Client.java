@@ -79,7 +79,7 @@ public class Client {
             if(message.getChannel().equals("friend")) {
               // Receive new message from friend
               AppSceneController appSceneController = App.getAppSceneController();
-              appSceneController.appendText(message.getSender() + " " + message.getTime() + " " + message.getContent());
+              appSceneController.appendText(message);
               appSceneController.addMessage(message);
             }
             else {
