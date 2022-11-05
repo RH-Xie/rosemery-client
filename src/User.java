@@ -89,6 +89,18 @@ class Friend {
   private String signature = "";
   private JSONObject jsonObject = null;
 
+  public Friend(User user) {
+    this.id = user.getId();
+    this.nickname = user.getNickname();
+    this.avatar = user.getAvatar();
+    this.signature = user.getSignature();
+    this.jsonObject = new JSONObject();
+    this.jsonObject.put("id", this.id);
+    this.jsonObject.put("nickname", this.nickname);
+    this.jsonObject.put("avatar", this.avatar);
+    this.jsonObject.put("signature", this.signature);
+  }
+
   public Friend(int id, String nickname, String avatar, String signature) {
     this.id = id;
     this.nickname = nickname;

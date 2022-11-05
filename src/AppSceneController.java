@@ -1,4 +1,3 @@
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -172,12 +171,12 @@ public class AppSceneController implements Initializable{
 
     class SendMessageTask implements Callable<Void> {
       private Message message;
-      private DataInputStream inputFromServer;
+      // private DataInputStream inputFromServer;
       private DataOutputStream outputToServer;
 
       SendMessageTask(Message message) throws IOException {
         this.message = message;
-        this.inputFromServer = client.getInputFromServer();
+        // this.inputFromServer = client.getInputFromServer();
         this.outputToServer = client.getOutputToServer();
       }
 
