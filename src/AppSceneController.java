@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -121,8 +122,10 @@ public class AppSceneController implements Initializable{
         friendChatList.put(currentFriend.getId(), messageList);
       }
       // "[" + new Date(message.getTime()) + "]" + 
-      Text text = new Text(message.getSender() + ": " + message.getContent() + "\n");
-      textFlow.getChildren().addAll(text);
+      Platform.runLater(() -> {
+        Text text = new Text(message.getSender() + ": " + message.getContent() + "\n");
+        textFlow.getChildren().addAll(text);  
+      });
       System.out.println("Message: " + textFlow.getChildren().size());
       inputTextArea.clear();
       try {
