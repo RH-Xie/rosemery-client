@@ -2,6 +2,7 @@ import java.io.IOException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson.JSONObject;
@@ -26,7 +27,10 @@ public class JsonLoader {
     this.jsonObject = jsonObject;
   }
 
-  public static MessageList loadFromFile(String filename) {
+  public static MessageList loadFromFile(int senderID, int receiverID) {
+    int less = senderID < receiverID ? senderID : receiverID;
+    int more = senderID > receiverID ? senderID : receiverID;
+    String filename = "./src/Log/Friend/" + less + "-" + more + ".json";
     Path path = Path.of(filename);
     if(!Files.exists(path)) {
       return null;
@@ -49,8 +53,14 @@ public class JsonLoader {
     }
   }
   
-  public static void saveToFile(String filename, MessageList messages) {
-    Path path = Path.of(filename);
+  public static void saveToFile(MessageList messages) {
+    if(messages == null) {
+      return;
+    }
+    Iterator<Message> iterator = messages.values().iterator();
+    Message firstMessage = iterator.next();
+    // 自应知何处存放
+    Path path = Path.of(firstMessage.getSender() + "-" + firstMessage.getReceiver() + ".json");
     if(!Files.exists(path)) {
       try {
         Files.createFile(path);

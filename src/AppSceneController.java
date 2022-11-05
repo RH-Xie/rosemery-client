@@ -1,6 +1,7 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -46,10 +47,12 @@ public class AppSceneController implements Initializable{
     @FXML
     private Button testBtn;
 
-    ExecutorService pool;
-    Friend[] friendList = new MakeFriends().getFriends();
-    String[] groupList = {"群聊1", "群聊2", "群聊3", "群聊4"};
-    ConcurrentHashMap<Integer, MessageList> friendChatList = new ConcurrentHashMap<Integer, MessageList>();
+    public ExecutorService pool;
+    public Friend[] friendList = new MakeFriends().getFriends();
+    public String[] groupList = {"群聊1", "群聊2", "群聊3", "群聊4"};
+    public ConcurrentHashMap<Integer, MessageList> friendChatList = new ConcurrentHashMap<Integer, MessageList>();
+
+    public Friend currentFriend = null;
 
     @Override
     public void initialize(java.net.URL location, java.util.ResourceBundle resources) {
@@ -75,42 +78,61 @@ public class AppSceneController implements Initializable{
 
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
         textFlow.getChildren().clear();
+        currentFriend = newValue;
         // Load from memory
-        if (friendChatList.containsKey(newValue.getId())) {
-          for(Message message : friendChatList.get(newValue.getId()).values()) {
+        if (friendChatList.containsKey(currentFriend.getId())) {
+          for(Message message : friendChatList.get(currentFriend.getId()).values()) {
             Text text = new Text("[" + message.getTime() + "]" + message.getSender() + ": " + message.getContent());
             textFlow.getChildren().add(text);
           }
         }
         else {
-          friendChatList.put(newValue.getId(), new MessageList());
-          System.out.println("打开了未曾聊天的用户: " + newValue.getId());
+          MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
+          if(messageList == null) {
+            System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
+            return;
+          }
+          // Load from disk
+          friendChatList.put(currentFriend.getId(), messageList);
         }
       });
     }
 
     @FXML
     void onSendMessage(ActionEvent event) {
-      Friend friend = friendListView.getSelectionModel().getSelectedItem();
+      if(currentFriend == null || inputTextArea.getText().equals("")) {
+        System.out.println("No friend selected / No message input");
+        return;
+      }
       Message message = new Message();
       message.setTime(System.currentTimeMillis());
       message.setType("text");
       message.setSender(client.getUserID());
-      message.setReceiver(friendListView.getSelectionModel().selectedItemProperty().getValue().getId());
+      message.setReceiver(currentFriend.getId());
       message.setContent(inputTextArea.getText());
       message.setChannel("friend");
-      friendChatList.get(friend.getId()).put(message.getTime(), message);
-      Text text = new Text("[" + message.getTime() + "]" + message.getSender() + ": " + message.getContent());
-      textFlow.getChildren().add(text);
+      // Add new message to memery
+      if(friendChatList.containsKey(currentFriend.getId())) {
+        friendChatList.get(currentFriend.getId()).put(message.getTime(), message);
+      }
+      else {
+        MessageList messageList = new MessageList();
+        messageList.put(message.getTime(), message);
+        friendChatList.put(currentFriend.getId(), messageList);
+      }
+      // "[" + new Date(message.getTime()) + "]" + 
+      Text text = new Text(message.getSender() + ": " + message.getContent() + "\n");
+      textFlow.getChildren().addAll(text);
+      System.out.println("Message: " + textFlow.getChildren().size());
       inputTextArea.clear();
-      SendMessageTask sendMessageTask;
       try {
-        sendMessageTask = new SendMessageTask(message);
+        SendMessageTask sendMessageTask = new SendMessageTask(message);
         pool.submit(sendMessageTask);
 
       } catch (IOException e) {
         e.printStackTrace();
       }
+      System.out.println("Func End");
     }
     
     @FXML
@@ -148,6 +170,8 @@ public class AppSceneController implements Initializable{
 
       SendMessageTask(Message message) throws IOException {
         this.message = message;
+        this.inputFromServer = client.getInputFromServer();
+        this.outputToServer = client.getOutputToServer();
       }
 
       @Override

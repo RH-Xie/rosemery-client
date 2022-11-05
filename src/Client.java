@@ -115,4 +115,11 @@ public class Client {
   public int getUserID() {
     return this.user.getId();
   }
+
+  public DataInputStream getInputFromServer() {
+    return this.inputFromServer;
+  }
+  public DataOutputStream getOutputToServer() {
+    return this.outputToServer;
+  }
 }

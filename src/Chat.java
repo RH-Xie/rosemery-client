@@ -41,8 +41,6 @@ public class Chat {
   }
 
   public void loadMessages() {
-    int less = senderID < receiverID ? senderID : receiverID;
-    int more = senderID > receiverID ? senderID : receiverID;
-    JsonLoader.loadFromFile("./src/Log/" + type + "/" + less + "-" + more + ".json");
+    JsonLoader.loadFromFile(senderID, receiverID);
   }
 }
