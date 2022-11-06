@@ -59,8 +59,12 @@ public class JsonLoader {
     }
     Iterator<Message> iterator = messages.values().iterator();
     Message firstMessage = iterator.next();
+    int senderID = firstMessage.getSenderID();
+    int receiverID = firstMessage.getReceiverID();
+    int less = senderID < receiverID ? senderID : receiverID;
+    int more = senderID > receiverID ? senderID : receiverID;
     // 自应知何处存放
-    Path path = Path.of(firstMessage.getSender() + "-" + firstMessage.getReceiver() + ".json");
+    Path path = Path.of("./src/Log/" + firstMessage.getChannel() + "/" + less + "-" + more + ".json");
     if(!Files.exists(path)) {
       try {
         Files.createFile(path);

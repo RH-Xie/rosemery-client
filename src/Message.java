@@ -31,11 +31,11 @@ public class Message {
     return this.content;
   }
 
-  public int getSender() {
+  public int getSenderID() {
     return this.sender;
   }
 
-  public int getReceiver() {
+  public int getReceiverID() {
     return this.receiver;
   }
 

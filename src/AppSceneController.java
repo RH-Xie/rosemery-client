@@ -78,25 +78,31 @@ public class AppSceneController implements Initializable{
       groupListView.getItems().addAll(groupList);
 
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-        textFlow.getChildren().clear();
         currentFriend = newValue;
         // Load from memory
         if (friendChatList.containsKey(currentFriend.getId())) {
-          for(Message message : friendChatList.get(currentFriend.getId()).values()) {
-            appendText(message);
-          }
+          refreshTextFlow();
         }
         else {
           MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
           if(messageList == null) {
             System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
+            textFlow.getChildren().clear();
             return;
           }
           // Load from disk
           friendChatList.put(currentFriend.getId(), messageList);
+          refreshTextFlow();
         }
       });
 
+    }
+
+    @Override
+    public void finalize() throws IOException {
+      for(MessageList messageList : friendChatList.values()) {
+        JsonLoader.saveToFile(messageList);
+      }
     }
 
     @FXML
@@ -130,11 +136,12 @@ public class AppSceneController implements Initializable{
       try {
         SendMessageTask sendMessageTask = new SendMessageTask(message);
         pool.submit(sendMessageTask);
-
       } catch (IOException e) {
         e.printStackTrace();
       }
-      System.out.println("Func End");
+      Platform.runLater(() -> {
+        JsonLoader.saveToFile(friendChatList.get(currentFriend.getId()));
+      });
     }
     
     @FXML
@@ -153,16 +160,19 @@ public class AppSceneController implements Initializable{
     }
 
     public void addMessage(Message message) {
+
       if(message.getChannel().equals("friend")) {
-        if(friendChatList.containsKey(message.getSender())) {
-          friendChatList.get(message.getSender()).put(message.getTime(), message);
+        long timestamp = message.getTime();
+        int senderID = message.getSenderID();
+        if(friendChatList.containsKey(senderID)) {
+          friendChatList.get(senderID).put(timestamp, message);
         }
         else {
           MessageList messageList = new MessageList();
-          messageList.put(message.getTime(), message);
-          friendChatList.put(message.getSender(), messageList);
+          messageList.put(timestamp, message);
+          friendChatList.put(senderID, messageList);
         }
-        if(currentFriend != null && currentFriend.getId() == message.getSender()) {
+        if(currentFriend != null && currentFriend.getId() == senderID) {
           Platform.runLater(() -> {
             appendText(message);
           });
@@ -183,8 +193,18 @@ public class AppSceneController implements Initializable{
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        Text text = new Text("[" + dateString + "]"  + message.getSender() + ": " + message.getContent() + "\n");
+        Text text = new Text("[" + dateString + "]"  + message.getSenderID() + ": " + message.getContent() + "\n");
         textFlow.getChildren().addAll(text);  
+      }
+    }
+
+    public void refreshTextFlow() {
+      textFlow.getChildren().clear();
+      if(currentFriend == null) {
+        return;
+      }
+      for(Message message : friendChatList.get(currentFriend.getId()).values()) {
+        appendText(message);
       }
     }
 
