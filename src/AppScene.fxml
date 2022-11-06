@@ -6,47 +6,78 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.TextFlow?>
 
-<SplitPane dividerPositions="0.2885" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AppSceneController">
-  <items>
-    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+<BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AppSceneController">
+   <center>
+      <SplitPane dividerPositions="0.2885" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-border-width: 0; -fx-background-color: #2F435B; -fx-border-color: transparent;">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <TabPane fx:id="tabpane" layoutX="-1.0" layoutY="-1.0" maxWidth="300.0" minWidth="70.0" prefWidth="175.0" side="LEFT" stylesheets="@css/tabpane.css" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-4.0" AnchorPane.topAnchor="-1.0">
+                    <tabs>
+                      <Tab>
+                           <content>
+                              <ListView fx:id="friendListView" />
+                           </content>
+                           <graphic>
+                              <ImageView fitHeight="28.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@icon/friend.png" />
+                                 </image></ImageView>
+                           </graphic>
+                        </Tab>
+                      <Tab>
+                           <content>
+                              <ListView fx:id="groupListView" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                           <graphic>
+                              <ImageView fitHeight="41.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@icon/group.png" />
+                                 </image></ImageView>
+                           </graphic>
+                        </Tab>
+                    </tabs>
+                  </TabPane>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0">
+               <children>
+                  <SplitPane dividerPositions="0.7787162162162161" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" style="-fx-padding: 0;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" style="-fx-box-border: transparent;">
+                           <children>
+                              <Pane fx:id="titlePane" layoutY="14.0" prefHeight="50.0" prefWidth="419.0" style="-fx-background-color: #51576F;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <TextFlow fx:id="textFlow" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0" />
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                           <children>
+                              <TextArea fx:id="inputTextArea" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Button fx:id="sendBtn" layoutX="363.0" layoutY="58.0" mnemonicParsing="false" onAction="#onSendMessage" onKeyReleased="#onEnterReleased" text="发送" />
+                           </children>
+                        </AnchorPane>
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </center>
+   <top>
+      <AnchorPane prefHeight="27.0" prefWidth="600.0" style="-fx-background-color: #1D262F;" BorderPane.alignment="CENTER">
          <children>
-            <TabPane fx:id="tabPane" maxWidth="300.0" minWidth="70.0" prefWidth="175.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="-3.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-              <tabs>
-                <Tab text="好友">
-                     <content>
-                        <ListView fx:id="friendListView" />
-                     </content>
-                  </Tab>
-                <Tab text="群聊">
-                     <content>
-                        <ListView fx:id="groupListView" prefHeight="200.0" prefWidth="200.0" />
-                     </content>
-                  </Tab>
-              </tabs>
-            </TabPane>
+            <ImageView fx:id="closeImg" fitHeight="20.0" fitWidth="22.0" layoutX="577.0" layoutY="4.0" onMouseClicked="#onCloseClick" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="3.0">
+               <image>
+                  <Image url="@icon/close.png" />
+               </image>
+            </ImageView>
          </children></AnchorPane>
-    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0">
-         <children>
-            <SplitPane dividerPositions="0.7787162162162161" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-              <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                     <children>
-                        <Pane fx:id="titlePane" layoutY="14.0" prefHeight="50.0" prefWidth="419.0" style="-fx-background-color: #899EBB;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                        <TextFlow fx:id="textFlow" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0" />
-                     </children>
-                  </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                     <children>
-                        <TextArea fx:id="inputTextArea" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                        <Button fx:id="sendBtn" layoutX="363.0" layoutY="58.0" mnemonicParsing="false" onAction="#onSendMessage" text="发送" />
-                        <Button fx:id="testBtn" layoutX="356.0" layoutY="14.0" mnemonicParsing="false" onAction="#onClickTest" text="点我测试" />
-                     </children></AnchorPane>
-              </items>
-            </SplitPane>
-         </children></AnchorPane>
-  </items>
-</SplitPane>
+   </top>
+</BorderPane>

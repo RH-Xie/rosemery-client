@@ -16,6 +16,10 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -46,7 +50,7 @@ public class AppSceneController implements Initializable{
     private Button sendBtn;
 
     @FXML
-    private Button testBtn;
+    private ImageView closeImg;
 
     public ExecutorService pool;
     public Friend[] friendList = new MakeFriends().getFriends();
@@ -152,6 +156,19 @@ public class AppSceneController implements Initializable{
     void onClickTest(ActionEvent event) {
       System.out.println(inputTextArea.getText());
       // System.out.println(JsonLoader.loadFromFile("./src/Log/Friend/tst.json"));
+    }
+
+    @FXML
+    void onCloseClick(MouseEvent event) {
+      Platform.exit();
+    }
+
+    
+    @FXML
+    void onEnterReleased(KeyEvent event) {
+      if(event.getCode() == KeyCode.ENTER) {
+        onSendMessage(null);
+      }
     }
 
     public boolean setClient(Client client) {

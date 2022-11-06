@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class App extends Application {
     public static Stage LoginStage;
@@ -44,6 +45,7 @@ public class App extends Application {
             controller.setClient(client);
             Scene scene = new Scene(root);
             stage.setScene(scene);
+            stage.initStyle(StageStyle.UNDECORATED);
             stage.setTitle("聊天室");
             stage.show();
         } catch (IOException e) {
