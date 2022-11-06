@@ -53,6 +53,6 @@
 .text-area .content {
   -fx-background-color: text-area-background ;
 }
-.image-view:hover {
+#closeImg:hover {
   -fx-cursor: hand;
 }
