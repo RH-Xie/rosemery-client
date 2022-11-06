@@ -33,6 +33,7 @@ public class Client {
       alert.show();
     }
   }
+
   Client(Client client) {
     this.user = client.user;
     this.host = client.host;
@@ -68,30 +69,35 @@ public class Client {
 
   public void listenMessage() {
     if (this.socket == null) {
+      System.out.println("socket is null");
       return;
     }
     try {
-      while(true) {
+      while (true) {
+        System.out.println("A");
         this.inputFromServer = new DataInputStream(socket.getInputStream());
         String operation = this.inputFromServer.readUTF();
-          if(operation.equals("reponseMessage")) {
-            String messageJsonString = this.inputFromServer.readUTF();
-            Message message = JSON.parseObject(messageJsonString, Message.class);
-            if(message.getChannel().equals("friend")) {
-              // Receive new message from friend
-              System.out.println("进入成功");
-              AppSceneController appSceneController = App.getAppSceneController();
-              Platform.runLater(() -> {
-                appSceneController.addMessage(message);
-              });
-            }
-            else {
-              System.out.println("未知的消息频道（未完善群聊）");
-            }
+        System.out.println("B");
+        if (operation.equals("reponseMessage")) {
+
+          System.out.println("C");
+          String messageJsonString = this.inputFromServer.readUTF();
+          Message message = JSON.parseObject(messageJsonString, Message.class);
+
+          System.out.println("D");
+          if (message.getChannel().equals("friend")) {
+            // Receive new message from friend
+            System.out.println("进入成功");
+            AppSceneController appSceneController = App.getAppSceneController();
+            Platform.runLater(() -> {
+              appSceneController.addMessage(message);
+            });
+          } else {
+            System.out.println("未知的消息频道（未完善群聊）");
           }
-          else {
-            System.out.println("未实现的消息类型");
-          }
+        } else {
+          System.out.println("未实现的消息类型");
+        }
       }
 
     } catch (IOException e) {
@@ -122,6 +128,7 @@ public class Client {
   public DataInputStream getInputFromServer() {
     return this.inputFromServer;
   }
+
   public DataOutputStream getOutputToServer() {
     return this.outputToServer;
   }

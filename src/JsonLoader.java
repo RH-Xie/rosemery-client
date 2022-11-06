@@ -10,27 +10,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
 public class JsonLoader {
-  private JSONObject jsonObject = null;
-  public JsonLoader() {
-    this.jsonObject = new JSONObject();
-  }
-  public JsonLoader(JSONObject jsonObject) {
-    this.jsonObject = jsonObject;
-  }
-  public JSONObject getJsonObject() {
-    return this.jsonObject;
-  }
-  public String getJson() {
-    return this.jsonObject.toString();
-  }
-  public void setJsonObject(JSONObject jsonObject) {
-    this.jsonObject = jsonObject;
-  }
-
   public static MessageList loadFromFile(int senderID, int receiverID) {
     int less = senderID < receiverID ? senderID : receiverID;
     int more = senderID > receiverID ? senderID : receiverID;
-    String filename = "./src/Log/Friend/" + less + "-" + more + ".json";
+    String filename = "./src/Log/friend/" + less + "-" + more + ".json";
     Path path = Path.of(filename);
     if(!Files.exists(path)) {
       return null;
@@ -40,10 +23,17 @@ public class JsonLoader {
       JSONArray jsonArray = JSON.parseArray(jsonString);
       MessageList messages = new MessageList();
       for(Object jsonObject : jsonArray) {
-        MessageObject messageObject = JSON.parseObject(jsonObject.toString(), MessageObject.class);
+        MessageObject messageObject = JSON.parseObject(JSON.toJSONString(jsonObject), MessageObject.class);
         Message message = messageObject.getMessage();
+        // BUG: message sender and receiver are not set
         messages.put(messageObject.getTimestamp(), message);
         System.out.println("Loading " + JSON.toJSONString(jsonObject));
+        System.out.println("内容：" + message.getContent());
+        System.out.println("时间：" + message.getTime());
+        System.out.println("类型：" + message.getType());
+        System.out.println("发送者：" + message.getSender());
+        System.out.println("接收者：" + message.getReceiver());
+        System.out.println("频道：" + message.getChannel());
       }
       
       return messages;
@@ -59,8 +49,8 @@ public class JsonLoader {
     }
     Iterator<Message> iterator = messages.values().iterator();
     Message firstMessage = iterator.next();
-    int senderID = firstMessage.getSenderID();
-    int receiverID = firstMessage.getReceiverID();
+    int senderID = firstMessage.getSender();
+    int receiverID = firstMessage.getReceiver();
     int less = senderID < receiverID ? senderID : receiverID;
     int more = senderID > receiverID ? senderID : receiverID;
     // 自应知何处存放
@@ -101,15 +91,15 @@ class MessageObject {
     return timestamp;
   }
   public void setTimestamp(long timestamp) {
-    jsonObject.put("time", timestamp);
     this.timestamp = timestamp;
+    jsonObject.put("time", timestamp);
   }
   public Message getMessage() {
     return message;
   }
   public void setMessage(Message message) {
-    jsonObject.put("message", message.getJson());
     this.message = message;
+    jsonObject.put("message", message.getJson());
   }
   public String getJson() {
     return jsonObject.toString();

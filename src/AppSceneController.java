@@ -78,21 +78,25 @@ public class AppSceneController implements Initializable{
       groupListView.getItems().addAll(groupList);
 
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        textFlow.getChildren().clear();
         currentFriend = newValue;
         // Load from memory
         if (friendChatList.containsKey(currentFriend.getId())) {
-          refreshTextFlow();
+          for(Message message : friendChatList.get(currentFriend.getId()).values()) {
+            appendText(message);
+          }
         }
         else {
           MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
           if(messageList == null) {
             System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
-            textFlow.getChildren().clear();
             return;
           }
           // Load from disk
           friendChatList.put(currentFriend.getId(), messageList);
-          refreshTextFlow();
+          for(Message message : messageList.values()) {
+            appendText(message);
+          }
         }
       });
 
@@ -163,7 +167,7 @@ public class AppSceneController implements Initializable{
 
       if(message.getChannel().equals("friend")) {
         long timestamp = message.getTime();
-        int senderID = message.getSenderID();
+        int senderID = message.getSender();
         if(friendChatList.containsKey(senderID)) {
           friendChatList.get(senderID).put(timestamp, message);
         }
@@ -193,18 +197,8 @@ public class AppSceneController implements Initializable{
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        Text text = new Text("[" + dateString + "]"  + message.getSenderID() + ": " + message.getContent() + "\n");
+        Text text = new Text("[" + dateString + "]"  + message.getSender() + ": " + message.getContent() + "\n");
         textFlow.getChildren().addAll(text);  
-      }
-    }
-
-    public void refreshTextFlow() {
-      textFlow.getChildren().clear();
-      if(currentFriend == null) {
-        return;
-      }
-      for(Message message : friendChatList.get(currentFriend.getId()).values()) {
-        appendText(message);
       }
     }
 
