@@ -11,7 +11,9 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
@@ -21,8 +23,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class AppSceneController implements Initializable{
 
@@ -41,7 +43,7 @@ public class AppSceneController implements Initializable{
     private TextArea inputTextArea;
 
     @FXML
-    private TextFlow textFlow;
+    private VBox textFlow;
 
     @FXML
     private Pane titlePane;
@@ -86,21 +88,20 @@ public class AppSceneController implements Initializable{
         currentFriend = newValue;
         // Load from memory
         if (friendChatList.containsKey(currentFriend.getId())) {
-          for(Message message : friendChatList.get(currentFriend.getId()).values()) {
-            appendText(message);
-          }
+          MessageList messageList = friendChatList.get(currentFriend.getId());
+          Util.sortByKey(messageList);
         }
         else {
           MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
           if(messageList == null) {
             System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
+            textFlow.getChildren().addAll(new Label("你们已经是好友啦！\n"));
             return;
           }
           // Load from disk
           friendChatList.put(currentFriend.getId(), messageList);
-          for(Message message : messageList.values()) {
-            appendText(message);
-          }
+          messageList = friendChatList.get(currentFriend.getId());
+          Util.sortByKey(messageList);
         }
       });
 
@@ -214,8 +215,16 @@ public class AppSceneController implements Initializable{
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        Text text = new Text("[" + dateString + "]"  + message.getSender() + ": " + message.getContent() + "\n");
-        textFlow.getChildren().addAll(text);  
+         Label label = new Label("[" + dateString + "]"  + message.getSender() + ": \n" + message.getContent() + "\n");
+
+        if(message.getSender() == client.getUserID()) {
+          label.setAlignment(Pos.CENTER_RIGHT);
+          label.setTextFill(Color.BLUE);
+        }
+        else {
+          label.setTextFill(Color.BLACK);
+        }
+        textFlow.getChildren().addAll(label);
       }
     }
 
