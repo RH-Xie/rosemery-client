@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -12,6 +13,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AppSceneController">
    <center>
@@ -63,7 +65,14 @@
                     <items>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" style="-fx-box-border: transparent;">
                            <children>
-                              <Pane fx:id="titlePane" layoutY="14.0" prefHeight="50.0" prefWidth="419.0" style="-fx-background-color: #51576F;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Pane fx:id="titlePane" layoutY="14.0" prefHeight="50.0" prefWidth="419.0" style="-fx-background-color: #51576F;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label fx:id="talkingLabel" layoutX="37.0" layoutY="12.0" prefHeight="27.0" prefWidth="323.0" text="选择好友开始对话吧！" textFill="WHITE">
+                                       <font>
+                                          <Font size="20.0" />
+                                       </font>
+                                    </Label>
+                                 </children></Pane>
                               <VBox fx:id="textFlow" layoutX="103.0" layoutY="60.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0" />
                            </children>
                         </AnchorPane>
@@ -71,6 +80,7 @@
                            <children>
                               <TextArea fx:id="inputTextArea" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                               <Button fx:id="sendBtn" layoutX="363.0" layoutY="58.0" mnemonicParsing="false" onAction="#onSendMessage" onKeyReleased="#onEnterReleased" text="发送" />
+                              <Button fx:id="fileBtn" layoutX="363.0" layoutY="10.0" mnemonicParsing="false" onAction="#onFileBtnClick" text="文件" />
                            </children>
                         </AnchorPane>
                     </items>

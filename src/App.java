@@ -60,6 +60,15 @@ public class App extends Application {
     public static AppSceneController getAppSceneController() {
         return (AppSceneController)appLoader.getController();
     }
+
+    public static Stage getLoginStage() {
+        return LoginStage;
+    }
+
+    public static Stage getAppStage() {
+        return AppStage;
+    }
+
     public static void main(String[] args) {
         launch();
     }

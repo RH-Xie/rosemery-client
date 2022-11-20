@@ -1,23 +1,32 @@
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.awt.Desktop;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -25,6 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 public class AppSceneController implements Initializable{
 
@@ -53,6 +63,12 @@ public class AppSceneController implements Initializable{
 
     @FXML
     private ImageView closeImg;
+
+    @FXML
+    private Button fileBtn;
+
+    @FXML
+    private Label talkingLabel;
 
     public ExecutorService pool;
     public Friend[] friendList = new MakeFriends().getFriends();
@@ -86,6 +102,7 @@ public class AppSceneController implements Initializable{
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
         textFlow.getChildren().clear();
         currentFriend = newValue;
+        talkingLabel.setText("与 " + newValue.getNickname() + " 聊天中");
         // Load from memory
         if (friendChatList.containsKey(currentFriend.getId())) {
           MessageList messageList = friendChatList.get(currentFriend.getId());
@@ -172,6 +189,32 @@ public class AppSceneController implements Initializable{
       }
     }
 
+    @FXML
+    void onFileBtnClick(ActionEvent event) {
+      if(currentFriend == null) {
+        System.out.println("No friend selected");
+        return;
+      }
+      FileChooser fileChooser = new FileChooser();
+      fileChooser.setTitle("Open Resource File");
+      File file = fileChooser.showOpenDialog(App.getAppStage());
+      if(file != null) {
+        System.out.println(file.getAbsolutePath());
+        Message message = new Message();
+        message.setTime(System.currentTimeMillis());
+        message.setType("file");
+        message.setSender(client.getUserID());
+        message.setReceiver(currentFriend.getId());
+        message.setContent(file.getName());
+        message.setChannel("friend");
+        // 创建文件传输任务，但并不是立刻开始传输（isReady被设置后才能传）
+        client.createFileTask(message, file);
+      }
+      else {
+        System.out.println("No file selected");
+      }
+    }
+
     public boolean setClient(Client client) {
       this.client = client;
       Runnable listenTask = () -> {
@@ -215,7 +258,7 @@ public class AppSceneController implements Initializable{
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-         Label label = new Label("[" + dateString + "]"  + message.getSender() + ": \n" + message.getContent() + "\n");
+        Label label = new Label("[" + dateString + "]"  + message.getSender() + ": \n" + message.getContent() + "\n");
 
         if(message.getSender() == client.getUserID()) {
           label.setAlignment(Pos.CENTER_RIGHT);
@@ -226,6 +269,59 @@ public class AppSceneController implements Initializable{
         }
         textFlow.getChildren().addAll(label);
       }
+    }
+
+    public void addFile(Message message) {
+      if(message.getType().equals("file")) {
+        Date date = new Date(message.getTime());
+        SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
+        String dateString = formatter.format(date);
+        Label label = new Label("[" + dateString + "]"  + message.getSender() + ": \n");
+        ImageView imageView = new ImageView("./icon/file.png");
+        imageView.setFitHeight(20);
+        imageView.setFitWidth(20);
+        label.setOnMouseClicked((MouseEvent) -> {
+          label.setText(message.getContent() + "(传输中)");
+          File file = new File("./src/tempFile/" + message.getContent());
+          Boolean isDone = client.createReceiveFileTask(message, file);
+          Runnable waitTask = () -> {
+            while(!isDone) {
+              try {
+                Thread.sleep(100);
+              } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
+            Platform.runLater(() -> {
+              label.setText(message.getContent() + "(传输完成)");
+              imageView.setImage(new Image("./icon/file_done.png"));
+              label.setOnMouseClicked((MouseEvent mouse)->{
+                try {
+                  Desktop.getDesktop().open(file);
+                } catch (IOException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+              });
+            });
+          };
+          new Thread(waitTask).start();
+        });
+        label.setGraphic(imageView);
+        label.setGraphicTextGap(5);
+        label.setCursor(Cursor.HAND);
+        label.setText(message.getContent() + "(点击接收)");
+        if(message.getSender() == client.getUserID()) {
+          label.setAlignment(Pos.CENTER_RIGHT);
+          label.setTextFill(Color.BLUE);
+        }
+        else {
+          label.setTextFill(Color.BLACK);
+        }
+        textFlow.getChildren().addAll(label);
+      }
+
     }
 
     class SendMessageTask implements Callable<Void> {
@@ -251,4 +347,6 @@ public class AppSceneController implements Initializable{
         return null;
       }
     }
+
+
 }
