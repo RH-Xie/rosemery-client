@@ -4,6 +4,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 public class LoginSceneController {
 
@@ -13,13 +15,13 @@ public class LoginSceneController {
     private TextField idTextField;
 
     @FXML
-    private Button loginBtn;
+    private ImageView loginBtn;
 
     @FXML
     private TextField passwordTextField;
 
     @FXML
-    void onLoginBtnClick(ActionEvent event) {
+    void onLoginBtnClick(MouseEvent event) {
       System.out.println(passwordTextField.getText());
       this.client = new Client();
       if(this.client == null) {

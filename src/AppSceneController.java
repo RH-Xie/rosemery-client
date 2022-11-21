@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import java.awt.Desktop;
+import java.beans.EventHandler;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -93,6 +94,10 @@ public class AppSceneController implements Initializable{
           if (empty || friend == null || friend.getNickname() == null) {
               setText(null);
           } else {
+              ImageView avatar = new ImageView(friend.getAvatar());
+              avatar.setFitHeight(40);
+              avatar.setFitWidth(40);
+              setGraphic(avatar);
               setText(friend.getNickname());
           }
   
@@ -233,9 +238,7 @@ public class AppSceneController implements Initializable{
       if(message.getChannel().equals("friend")) {
         long timestamp = message.getTime();
         int senderID = message.getSender();
-        System.out.println("消息：" + message.getJson());
         if(friendChatList.containsKey(senderID)) {
-          System.out.println("消息：" + message.getJson());
           friendChatList.get(senderID).put(timestamp, message);
         }
         else {
@@ -292,7 +295,7 @@ public class AppSceneController implements Initializable{
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        Label label = new Label("【" + message.getSender() + "】"  + dateString + ": \n" + message.getContent());
+        Label label = new Label("【" + message.getSender() + "】"  + dateString + " \n" + message.getContent());
         if(message.getSender() == client.getUserID()) {
           label.setAlignment(Pos.CENTER_RIGHT);
           label.setTextFill(Color.BLUE);
@@ -305,9 +308,8 @@ public class AppSceneController implements Initializable{
     }
 
     public void addFile(Message message, File localFile) {
-      System.out.println("addFile   " + message.getType());
+      System.out.println("消息类型：" + message.getType());
       addHistory(message);
-      System.out.println(friendChatList.get(currentFriend.getId()));
       int userID = client.getUserID();
       // 接收者的逻辑
       System.out.println(userID == message.getReceiver());
@@ -320,10 +322,15 @@ public class AppSceneController implements Initializable{
         ImageView imageView = new ImageView("./icon/file.png");
         imageView.setFitHeight(20);
         imageView.setFitWidth(20);
-        fileLabel.setOnMouseClicked((MouseEvent) -> {
+        fileLabel.setGraphic(imageView);
+        fileLabel.setGraphicTextGap(5);
+        fileLabel.setCursor(Cursor.HAND);
+        fileLabel.setOnMouseClicked((MouseEvent mouse) -> {
+          System.out.println("点击了文件");
           File file = new File("./src/tempFile/" + message.getContent());
           if(!file.exists()) {
             fileLabel.setText(message.getContent() + "(传输中)");
+            // 问题出在这
             Client.ReceiveFileTask receiveFileTask = client.createReceiveFileTask(message, file);
             Runnable waitTask = () -> {
               while(!receiveFileTask.isDone()) {
@@ -337,7 +344,8 @@ public class AppSceneController implements Initializable{
               Platform.runLater(() -> {
                 fileLabel.setText(message.getContent() + "(传输完成)");
                 imageView.setImage(new Image("./icon/file_done.png"));
-                fileLabel.setOnMouseClicked((MouseEvent mouse)->{
+                fileLabel.removeEventHandler(MouseEvent.MOUSE_CLICKED, fileLabel.getOnMouseClicked());
+                fileLabel.setOnMouseClicked((MouseEvent open)->{
                   try {
                     Desktop.getDesktop().open(file);
                   } catch (IOException e) {
@@ -356,7 +364,7 @@ public class AppSceneController implements Initializable{
             Platform.runLater(() -> {
               fileLabel.setText(message.getContent() + "(传输完成)");
               imageView.setImage(new Image("./icon/file_done.png"));
-              fileLabel.setOnMouseClicked((MouseEvent mouse)->{
+              fileLabel.setOnMouseClicked((MouseEvent notused)->{
                 try {
                   Desktop.getDesktop().open(file);
                 } catch (IOException e) {
@@ -368,11 +376,8 @@ public class AppSceneController implements Initializable{
               });
             });  
           }
-
+            
         });
-        fileLabel.setGraphic(imageView);
-        fileLabel.setGraphicTextGap(5);
-        fileLabel.setCursor(Cursor.HAND);
         if(new File("./src/tempFile/" + message.getContent()).exists()) {
           fileLabel.setText(message.getContent() + "(传输完成)");
           imageView.setImage(new Image("./icon/file_done.png"));
@@ -388,7 +393,7 @@ public class AppSceneController implements Initializable{
           });
         }
         else {
-          fileLabel.setText(message.getContent() + "(传输中)");
+          fileLabel.setText(message.getContent() + "(点击接收)");
         }
         if(message.getSender() == client.getUserID()) {
           fileLabel.setAlignment(Pos.CENTER_RIGHT);

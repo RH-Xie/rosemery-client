@@ -29,12 +29,9 @@ public class Client {
   private DataOutputStream outputToServer;
   public ExecutorService pool;
   private Stack<Callable<Void>> tasks;
-  private Stack<Callable<Void>> receiveTasks;
-
   Client() {
     this.pool = Executors.newFixedThreadPool(20);
     this.tasks = new Stack<Callable<Void>>();
-    this.receiveTasks = new Stack<Callable<Void>>();
     try {
       this.socket = new Socket(this.host, this.port);
     } catch (UnknownHostException e) {
@@ -212,8 +209,6 @@ public class Client {
     try {
       ReceiveFileTask receiveFileTask = new ReceiveFileTask(message, file);
       this.pool.submit(receiveFileTask);
-      this.receiveTasks.push(receiveFileTask);
-      System.out.println("【收文件】压栈：" + receiveTasks.size());
       return receiveFileTask;
     } catch (IOException e) {
       e.printStackTrace();
