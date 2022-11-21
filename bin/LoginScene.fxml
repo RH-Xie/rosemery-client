@@ -25,7 +25,10 @@
             <Font size="18.0" />
          </font>
       </PasswordField>
-      <Label layoutX="129.0" layoutY="40.0" text="没有账号？" textFill="#1fb7f4" />
+      <Label fx:id="registerLabel" layoutX="129.0" layoutY="40.0" onMouseClicked="#onRegisterBtnClick" text="没有账号？" textFill="#1fb7f4">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></Label>
       <ImageView fx:id="loginBtn" fitHeight="63.0" fitWidth="60.0" layoutX="266.0" layoutY="74.0" onMouseClicked="#onLoginBtnClick" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@icon/login.png" />

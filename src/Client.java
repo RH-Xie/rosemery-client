@@ -110,6 +110,23 @@ public class Client {
     return result;
   }
 
+  public String register(Message message) {
+    if (this.socket == null) {
+      return "localerror";
+    }
+    String result = "networkerror";
+    try {
+      this.inputFromServer = new DataInputStream(socket.getInputStream());
+      this.outputToServer = new DataOutputStream(socket.getOutputStream());
+      outputToServer.writeUTF("register");
+      outputToServer.writeUTF(message.getJson());
+      result = this.inputFromServer.readUTF();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
   public void listenMessage() {
     if (this.socket == null) {
       System.out.println("socket is null");

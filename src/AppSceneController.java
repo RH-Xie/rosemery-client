@@ -94,9 +94,11 @@ public class AppSceneController implements Initializable{
           if (empty || friend == null || friend.getNickname() == null) {
               setText(null);
           } else {
+            // 设置选择栏的好友显示
               ImageView avatar = new ImageView(friend.getAvatar());
               avatar.setFitHeight(40);
               avatar.setFitWidth(40);
+              
               setGraphic(avatar);
               setText(friend.getNickname());
           }

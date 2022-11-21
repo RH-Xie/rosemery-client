@@ -10,8 +10,10 @@ import javafx.stage.StageStyle;
 public class App extends Application {
     public static Stage LoginStage;
     public static Stage AppStage;
+    public static Stage RegisterStage;
     private static FXMLLoader loginLoader;
     private static FXMLLoader appLoader;
+    private static FXMLLoader registerLoader;
 
     @Override
     public void start(Stage primaryStage) {
@@ -53,12 +55,34 @@ public class App extends Application {
         }
     }
 
+    public static void enterRegister() {
+        Stage stage = new Stage();
+        RegisterStage = stage;
+        Parent root;
+        try {
+            registerLoader = new FXMLLoader(App.class.getResource("RegisterScene.fxml"));
+            Object loadBuffer = registerLoader.load();
+            root = (Parent)loadBuffer;
+            RegisterSceneController controller = (RegisterSceneController)registerLoader.getController();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("注册");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static LoginSceneController getLoginsSceneController() {
         return (LoginSceneController)loginLoader.getController();
     }
 
     public static AppSceneController getAppSceneController() {
         return (AppSceneController)appLoader.getController();
+    }
+
+    public static RegisterSceneController getRegisterSceneController() {
+        return (RegisterSceneController)registerLoader.getController();
     }
 
     public static Stage getLoginStage() {
