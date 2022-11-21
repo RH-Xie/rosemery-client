@@ -52,34 +52,40 @@ public class Message {
     return this.type;
   }
 
-  public void setTime(long time) {
+  public Message setTime(long time) {
     this.time = time;
     this.jsonObject.put("time", time);
+    return this;
   }
 
-  public void setType(String type) {
+  public Message setType(String type) {
     this.type = type;
     this.jsonObject.put("type", type);
+    return this;
   }
 
-  public void setContent(String content) {
+  public Message setContent(String content) {
     this.content = content;
     this.jsonObject.put("content", content);
+    return this;
   }
 
-  public void setSender(int sender) {
+  public Message setSender(int sender) {
     this.sender = sender;
     this.jsonObject.put("sender", sender);
+    return this;
   }
 
-  public void setReceiver(int receiver) {
+  public Message setReceiver(int receiver) {
     this.receiver = receiver;
     this.jsonObject.put("receiver", receiver);
+    return this;
   }
 
-  public void setChannel(String channel) {
+  public Message setChannel(String channel) {
     this.channel = channel;
     this.jsonObject.put("channel", channel);
+    return this;
   }
 }
 
