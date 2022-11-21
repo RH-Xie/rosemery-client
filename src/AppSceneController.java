@@ -373,7 +373,24 @@ public class AppSceneController implements Initializable{
         fileLabel.setGraphic(imageView);
         fileLabel.setGraphicTextGap(5);
         fileLabel.setCursor(Cursor.HAND);
-      fileLabel.setText(message.getContent() + "(点击接收)");
+        if(new File("./src/tempFile/" + message.getContent()).exists()) {
+          fileLabel.setText(message.getContent() + "(传输完成)");
+          imageView.setImage(new Image("./icon/file_done.png"));
+          fileLabel.setOnMouseClicked((MouseEvent mouse)->{
+            try {
+              Desktop.getDesktop().open(new File("./src/tempFile/" + message.getContent()));
+            } catch (IOException e) {
+              Alert alert = new Alert(AlertType.ERROR);
+              alert.setTitle("错误");
+              alert.setHeaderText("文件可能已被删除");
+              e.printStackTrace();
+            }
+          });
+        }
+        else {
+          fileLabel.setText(message.getContent() + "(传输中)");
+        }
+        fileLabel.setText(message.getContent() + "(点击接收)");
         if(message.getSender() == client.getUserID()) {
           fileLabel.setAlignment(Pos.CENTER_RIGHT);
           fileLabel.setTextFill(Color.BLUE);

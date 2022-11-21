@@ -1,0 +1,16 @@
+日夜不循环
+时间为23000
+不作天气循环（不下雨）
+/gamerule doDaylightCycle false
+/gamerule doWeatherCycle false
+/gamerule doTileDrops false
+/gamerule mobGriefing false
+/gamerule sendCommandFeedBack false
+/gamerule commandBlockOutput fallse
+
+标记地点的思路：红石给实体上荧光buff
+
+用信标会好点。荧光buff只能短距离标记。
+
+如鬼灯般的红色之魂
+

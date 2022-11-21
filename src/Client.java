@@ -151,6 +151,9 @@ public class Client {
           System.out.println("fileFromServer");
           String messageJsonString = this.inputFromServer.readUTF();
           Message message = JSON.parseObject(messageJsonString, Message.class);
+          Platform.runLater(() -> {
+            appSceneController.addFile(message, null);
+          });
         }
 
         else {
