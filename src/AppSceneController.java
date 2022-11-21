@@ -390,7 +390,6 @@ public class AppSceneController implements Initializable{
         else {
           fileLabel.setText(message.getContent() + "(传输中)");
         }
-        fileLabel.setText(message.getContent() + "(点击接收)");
         if(message.getSender() == client.getUserID()) {
           fileLabel.setAlignment(Pos.CENTER_RIGHT);
           fileLabel.setTextFill(Color.BLUE);
