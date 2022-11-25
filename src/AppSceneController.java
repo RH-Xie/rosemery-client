@@ -76,6 +76,7 @@ public class AppSceneController implements Initializable{
 
     public ExecutorService pool;
     public Friend[] friendList = new MakeFriends().getFriends();
+    // Request groupList from server
     public String[] groupList = {"群聊1", "群聊2", "群聊3", "群聊4"};
     public ConcurrentHashMap<Integer, MessageList> friendChatList = new ConcurrentHashMap<Integer, MessageList>();
 
@@ -106,9 +107,19 @@ public class AppSceneController implements Initializable{
         }
       });
 
+
+      
       System.out.println("Initializing " + location);
       groupListView.getItems().addAll(groupList);
       // Load the chat history
+      friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        textFlow.getChildren().clear();
+        currentFriend = newValue;
+        talkingLabel.setText("与 " + newValue.getNickname() + " 聊天中");
+        // Load from memory
+        loadHistory();
+      });
+
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
         textFlow.getChildren().clear();
         currentFriend = newValue;
@@ -314,7 +325,6 @@ public class AppSceneController implements Initializable{
       addHistory(message);
       int userID = client.getUserID();
       // 接收者的逻辑
-      System.out.println(userID == message.getReceiver());
       if(userID == message.getReceiver()) {
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
@@ -328,7 +338,6 @@ public class AppSceneController implements Initializable{
         fileLabel.setGraphicTextGap(5);
         fileLabel.setCursor(Cursor.HAND);
         fileLabel.setOnMouseClicked((MouseEvent mouse) -> {
-          System.out.println("点击了文件");
           File file = new File("./src/tempFile/" + message.getContent());
           if(!file.exists()) {
             fileLabel.setText(message.getContent() + "(传输中)");
