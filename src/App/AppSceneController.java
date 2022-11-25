@@ -191,8 +191,7 @@ public class AppSceneController implements Initializable{
     
     @FXML
     void onAddClick(MouseEvent event) {
-      System.out.println("Add friend");
-      
+      App.enterSearch(client);
     }
 
     @FXML

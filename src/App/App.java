@@ -1,9 +1,11 @@
 package App;
 
 import java.io.IOException;
+import java.net.Socket;
 
 import App.Login.LoginSceneController;
 import App.Register.RegisterSceneController;
+import App.Search.SearchSceneController;
 import Client.Client;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,9 +18,11 @@ public class App extends Application {
     public static Stage LoginStage;
     public static Stage AppStage;
     public static Stage RegisterStage;
+    public static Stage SearchStage;
     private static FXMLLoader loginLoader;
     private static FXMLLoader appLoader;
     private static FXMLLoader registerLoader;
+    private static FXMLLoader searchLoader;
 
     @Override
     public void start(Stage primaryStage) {
@@ -79,6 +83,26 @@ public class App extends Application {
         }
     }
 
+    public static void enterSearch(Client client) {
+        Stage stage = new Stage();
+        SearchStage = stage;
+        Parent root;
+        try {
+            searchLoader = new FXMLLoader(App.class.getResource("./Search/SearchScene.fxml"));
+            Object loadBuffer = searchLoader.load();
+            root = (Parent)loadBuffer;
+            SearchSceneController controller = (SearchSceneController)searchLoader.getController();
+            controller.setClient(client);
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("寻找好友/群聊");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static LoginSceneController getLoginsSceneController() {
         return (LoginSceneController)loginLoader.getController();
     }
@@ -90,6 +114,10 @@ public class App extends Application {
     public static RegisterSceneController getRegisterSceneController() {
         return (RegisterSceneController)registerLoader.getController();
     }
+    
+    public static SearchSceneController getSearchSceneController() {
+        return (SearchSceneController)searchLoader.getController();
+    }
 
     public static Stage getLoginStage() {
         return LoginStage;
@@ -97,6 +125,14 @@ public class App extends Application {
 
     public static Stage getAppStage() {
         return AppStage;
+    }
+
+    public static Stage getRegisterStage() {
+        return RegisterStage;
+    }
+
+    public static Stage getSearchStage() {
+        return SearchStage;
     }
 
     public static void main(String[] args) {
