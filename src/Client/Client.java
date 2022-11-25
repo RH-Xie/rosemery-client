@@ -145,10 +145,8 @@ public class Client {
         AppSceneController appSceneController = App.getAppSceneController();
         // 消息响应
         if (operation.equals("reponseMessage")) {
-
           String messageJsonString = this.inputFromServer.readUTF();
           Message message = JSON.parseObject(messageJsonString, Message.class);
-
           if (message.getChannel().equals("friend")) {
             // Receive new message from friend
             System.out.println("进入成功");
@@ -171,9 +169,9 @@ public class Client {
           System.out.println("fileFromServer");
           String messageJsonString = this.inputFromServer.readUTF();
           Message message = JSON.parseObject(messageJsonString, Message.class);
-          Platform.runLater(() -> {
-            appSceneController.addFile(message, null);
-          });
+          // Platform.runLater(() -> {
+          //   appSceneController.addFile(message, null);
+          // });
         }
 
         else {

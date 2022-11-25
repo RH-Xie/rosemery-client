@@ -134,13 +134,13 @@ public class AppSceneController implements Initializable{
         loadHistory();
       });
 
-      friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-        textFlow.getChildren().clear();
-        currentFriend = newValue;
-        talkingLabel.setText("与 " + newValue.getNickname() + " 聊天中");
-        // Load from memory
-        loadHistory();
-      });
+      // friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      //   textFlow.getChildren().clear();
+      //   currentFriend = newValue;
+      //   talkingLabel.setText("与 " + newValue.getNickname() + " 聊天中");
+      //   // Load from memory
+      //   loadHistory();
+      // });
 
     }
 
@@ -336,6 +336,10 @@ public class AppSceneController implements Initializable{
     public void addFile(Message message, File localFile) {
       System.out.println("消息类型：" + message.getType());
       addHistory(message);
+      if(message.getSender() != currentFriend.getId() && message.getSender() != client.getUserID()) {
+        // 既不是别人发的，也不是我发的，故不显示
+        return;
+      }
       int userID = client.getUserID();
       // 接收者的逻辑
       if(userID == message.getReceiver()) {
@@ -435,15 +439,16 @@ public class AppSceneController implements Initializable{
         Date date = new Date(message.getTime());
         SimpleDateFormat formatter = new SimpleDateFormat ("MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
-        Label label = new Label("[" + dateString + "]"  + message.getSender() + ": \n");
+        Label textLabel = new Label("【" + message.getSender() + "】"  + dateString + ": \n");
+        Label imageLabel = new Label("[" + dateString + "]"  + message.getSender() + ": \n");
         ImageView imageView = new ImageView("./icon/file_done.png");
         imageView.setFitHeight(20);
         imageView.setFitWidth(20);
-        label.setCursor(Cursor.HAND);
-        label.setGraphic(imageView);
-        label.setGraphicTextGap(5);
-        label.setText(message.getContent());
-        label.setOnMouseClicked((MouseEvent mouse)->{
+        imageLabel.setCursor(Cursor.HAND);
+        imageLabel.setGraphic(imageView);
+        imageLabel.setGraphicTextGap(5);
+        imageLabel.setText(message.getContent());
+        imageLabel.setOnMouseClicked((MouseEvent mouse)->{
           try {
             // 临时处理：没有指定则从tempFile提取
             // 后续计划：已有文件存储在json中，没有则从服务器下载
@@ -462,14 +467,15 @@ public class AppSceneController implements Initializable{
           }
         });
         if(message.getSender() == client.getUserID()) {
-          label.setAlignment(Pos.CENTER_RIGHT);
-          label.setTextFill(Color.BLUE);
+          imageLabel.setAlignment(Pos.CENTER_RIGHT);
+          textLabel.setTextFill(Color.BLUE);
+          imageLabel.setTextFill(Color.BLUE);
         }
         else {
-          label.setTextFill(Color.BLACK);
+          textLabel.setTextFill(Color.BLACK);
         }
         System.out.println("add file");
-        textFlow.getChildren().addAll(label);
+        textFlow.getChildren().addAll(textLabel, imageLabel);
       }
     }
 
