@@ -6,15 +6,9 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Launch Current File",
-      "request": "launch",
-      "mainClass": "${file}"
-    },
-    {
-      "type": "java",
       "name": "Launch App",
       "request": "launch",
-      "mainClass": "App",
+      "mainClass": "App.App",
       "projectName": "rosemery-client_ad48fa3f",
       "vmArgs": "--module-path \"D:/JAVA/javafx-sdk-19/lib\" --add-modules javafx.controls,javafx.fxml"
     }

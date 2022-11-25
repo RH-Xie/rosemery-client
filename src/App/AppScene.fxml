@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="App.AppSceneController">
+   <center>
+      <SplitPane dividerPositions="0.375" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-border-width: 0; -fx-background-color: #2F435B; -fx-border-color: transparent;">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <ImageView fitHeight="499.0" fitWidth="280.0" layoutY="-1.0" opacity="0.43" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="0.0">
+                     <image>
+                        <Image url="@../bg/bg.png" />
+                     </image>
+                  </ImageView>
+                  <TabPane fx:id="tabpane" layoutX="-1.0" layoutY="-1.0" maxWidth="300.0" minWidth="70.0" prefWidth="175.0" side="LEFT" stylesheets="@css/tabpane.css" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-4.0" AnchorPane.topAnchor="-1.0">
+                    <tabs>
+                      <Tab>
+                           <content>
+                              <ListView fx:id="friendListView" />
+                           </content>
+                           <graphic>
+                              <ImageView fitHeight="28.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../icon/friend.png" />
+                                 </image></ImageView>
+                           </graphic>
+                        </Tab>
+                      <Tab>
+                           <content>
+                              <ListView fx:id="groupListView" fixedCellSize="40.0" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                           <graphic>
+                              <ImageView fitHeight="41.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../icon/group.png" />
+                                 </image></ImageView>
+                           </graphic>
+                        </Tab>
+                    </tabs>
+                  </TabPane>
+                  <ImageView fx:id="addBtn" fitHeight="36.0" fitWidth="31.0" layoutY="64.0" onMouseClicked="#onAddClick" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="17.0">
+                     <image>
+                        <Image url="@../icon/add.png" />
+                     </image>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </ImageView>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0">
+               <children>
+                  <SplitPane dividerPositions="0.7787162162162161" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" style="-fx-padding: 0;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <items>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" style="-fx-box-border: transparent;">
+                           <children>
+                              <Pane fx:id="titlePane" layoutY="14.0" prefHeight="50.0" prefWidth="419.0" style="-fx-background-color: #51576F;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label fx:id="talkingLabel" layoutX="37.0" layoutY="12.0" prefHeight="27.0" prefWidth="323.0" text="选择好友开始对话吧！" textFill="WHITE">
+                                       <font>
+                                          <Font size="20.0" />
+                                       </font>
+                                    </Label>
+                                 </children></Pane>
+                              <VBox fx:id="textFlow" layoutX="103.0" layoutY="60.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0" />
+                           </children>
+                        </AnchorPane>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                           <children>
+                              <TextArea fx:id="inputTextArea" prefHeight="200.0" prefWidth="200.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Button fx:id="sendBtn" layoutX="363.0" layoutY="58.0" mnemonicParsing="false" onAction="#onSendMessage" onKeyReleased="#onEnterReleased" text="发送" AnchorPane.rightAnchor="10.0" />
+                              <Button fx:id="fileBtn" layoutX="363.0" layoutY="10.0" mnemonicParsing="false" onAction="#onFileBtnClick" text="文件" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="5.0" />
+                           </children>
+                        </AnchorPane>
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </center>
+   <top>
+      <AnchorPane prefHeight="27.0" prefWidth="600.0" style="-fx-background-color: #1D262F;" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fx:id="closeImg" fitHeight="20.0" fitWidth="22.0" layoutX="577.0" layoutY="4.0" onMouseClicked="#onCloseClick" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;" AnchorPane.rightAnchor="3.0">
+               <image>
+                  <Image url="@../icon/close.png" />
+               </image>
+            </ImageView>
+         </children></AnchorPane>
+   </top>
+</BorderPane>
