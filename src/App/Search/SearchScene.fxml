@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="331.0" prefWidth="248.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="App.Search.SearchSceneController">
+   <children>
+      <TextField fx:id="searchInput" layoutX="44.0" layoutY="41.0" prefHeight="30.0" prefWidth="168.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0" />
+      <RadioButton fx:id="friendRadio" layoutX="40.0" layoutY="76.0" mnemonicParsing="false" selected="true" text="好友" AnchorPane.leftAnchor="40.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+         <toggleGroup>
+            <ToggleGroup fx:id="type" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="groupRadio" layoutX="154.0" layoutY="76.0" mnemonicParsing="false" text="群组" toggleGroup="$type" AnchorPane.rightAnchor="40.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </RadioButton>
+      <ListView fx:id="resultListView" layoutX="14.0" layoutY="107.0" prefHeight="219.0" prefWidth="228.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+   </children>
+</AnchorPane>
