@@ -18,6 +18,10 @@ public class Group {
     this.state = state;
   }
 
+  public Group() {
+    this.jsonObject = new JSONObject();
+  }
+
   public int getGroupID() {
     return groupID;
   }

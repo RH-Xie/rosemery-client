@@ -34,6 +34,34 @@ public class Friend {
     this.jsonObject.put("signature", signature);
   }
 
+  public Friend() {
+    this.jsonObject = new JSONObject();
+  }
+
+  public Friend setID(int id) {
+    this.id = id;
+    this.jsonObject.put("id", id);
+    return this;
+  }
+
+  public Friend setNickname(String nickname) {
+    this.nickname = nickname;
+    this.jsonObject.put("nickname", nickname);
+    return this;
+  }
+
+  public Friend setAvatar(String avatar) {
+    this.avatar = avatar;
+    this.jsonObject.put("avatar", avatar);
+    return this;
+  }
+
+  public Friend setSignature(String signature) {
+    this.signature = signature;
+    this.jsonObject.put("signature", signature);
+    return this;
+  }
+
   public int getId() {
     return this.id;
   }

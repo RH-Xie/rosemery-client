@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -18,9 +20,12 @@ import com.alibaba.fastjson.JSON;
 
 import App.App;
 import App.AppSceneController;
+import App.Search.SearchSceneController;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import shared.Friend;
+import shared.Group;
 import shared.LoginMessage;
 import shared.Message;
 import shared.User;
@@ -35,6 +40,9 @@ public class Client {
   private DataOutputStream outputToServer;
   public ExecutorService pool;
   private Stack<Callable<Void>> tasks;
+  private Set<Friend> friends = new HashSet<>();
+  private Set<Group> groups = new HashSet<>();
+
   public Client() {
     this.pool = Executors.newFixedThreadPool(20);
     this.tasks = new Stack<Callable<Void>>();
@@ -143,6 +151,7 @@ public class Client {
         this.inputFromServer = new DataInputStream(socket.getInputStream());
         String operation = this.inputFromServer.readUTF();
         AppSceneController appSceneController = App.getAppSceneController();
+        SearchSceneController searchSceneController = App.getSearchSceneController();
         // 消息响应
         if (operation.equals("reponseMessage")) {
           String messageJsonString = this.inputFromServer.readUTF();
@@ -159,6 +168,9 @@ public class Client {
               Platform.runLater(() -> {
                 appSceneController.addText(message);
               });
+            }
+            if(message.getType().equals("search")) {
+              System.out.println("【查找】成功响应，但暂无作用");
             }
           } else {
             System.out.println("未知的消息频道（未完善群聊）");
@@ -212,6 +224,38 @@ public class Client {
     return this.outputToServer;
   }
 
+  public Set<Friend> getFriends() {
+    return this.friends;
+  }
+
+  public void setFriends(Set<Friend> friends) {
+    this.friends = friends;
+  }
+
+  public void addFriend(Friend friend) {
+    this.friends.add(friend);
+  }
+
+  public void removeFriend(Friend friend) {
+    this.friends.remove(friend);
+  }
+
+  public Set<Group> getGroups() {
+    return this.groups;
+  }
+
+  public void setGroups(Set<Group> groups) {
+    this.groups = groups;
+  }
+
+  public void addGroup(Group group) {
+    this.groups.add(group);
+  }
+
+  public void removeGroup(Group group) {
+    this.groups.remove(group);
+  }
+
   public void createFileTask(Message message, File file) {
 
     try {
@@ -235,6 +279,12 @@ public class Client {
       e.printStackTrace();
       return null;
     }
+  }
+
+  public FindTask createFindTask(Message message) {
+    FindTask findTask = new FindTask(message);
+    this.pool.submit(findTask);
+    return findTask;
   }
 
   class SendFileTask implements Callable<Void> {
@@ -352,5 +402,52 @@ public class Client {
       return this.file;
     }
   }
+
+  public class FindTask implements Callable<Void> {
+    private Message message;
+    private boolean isDone;
+    private int result;
+
+    public FindTask(Message message) {
+      this.message = message;
+      this.isDone = false;
+      this.result = -1;
+    }
+
+    @Override
+    public Void call() throws Exception {
+      try {
+        System.out.println("【" + user.getId() + "】开始查找");
+        // 发送指令
+        outputToServer.writeUTF("search");
+        // 发送搜索字段
+        outputToServer.writeUTF(message.getJson());
+        // 接收搜索结果
+        String json = inputFromServer.readUTF();
+        Message response = JSON.parseObject(json, Message.class);
+        if(response.getContent().equals("null")) {
+          // 默认-1，客户端那边需要辨认一下，-1为无结果，弹窗提示
+          return null;
+        }
+        this.result = 0;
+        // 结果就绪，通知UI更新
+        this.isDone = true;
+      }catch(Exception e) {
+        System.out.println("FindTask 错误");
+        e.printStackTrace();
+      }
+      return null;
+    }
+
+    public boolean isDone() {
+      return this.isDone;
+    }
+
+    public int getResult() {
+      return this.result;
+    }
+
+  } 
+
 
 }

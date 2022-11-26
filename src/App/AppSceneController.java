@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -45,6 +47,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import shared.Friend;
+import shared.Group;
 import shared.JsonLoader;
 import shared.MakeFriends;
 import shared.Message;
@@ -59,7 +62,7 @@ public class AppSceneController implements Initializable{
     private ListView<Friend> friendListView;
 
     @FXML
-    private ListView<String> groupListView;
+    private ListView<Group> groupListView;
 
     @FXML
     private TabPane tabPane;
@@ -89,16 +92,17 @@ public class AppSceneController implements Initializable{
     private ImageView addBtn;
 
     public ExecutorService pool;
-    public Friend[] friendList = new MakeFriends().getFriends();
+    public Set<Friend> friendList = new HashSet<>();
     // Request groupList from server
-    public String[] groupList = {"群聊1", "群聊2", "群聊3", "群聊4"};
+    public Set<Group> groupList = new HashSet<>();
     public ConcurrentHashMap<Integer, MessageList> friendChatList = new ConcurrentHashMap<Integer, MessageList>();
 
     public Friend currentFriend = null;
 
     @Override
     public void initialize(java.net.URL location, java.util.ResourceBundle resources) {
-      System.out.println("Friends: " + friendList.length);
+      System.out.println("client: " + client);
+      System.out.println("Friends: " + friendList.size());
       this.pool = Executors.newFixedThreadPool(20);
       friendListView.getItems().addAll(friendList);
       friendListView.setCellFactory(param -> new ListCell<Friend>() {
@@ -248,6 +252,8 @@ public class AppSceneController implements Initializable{
 
     public boolean setClient(Client client) {
       this.client = client;
+      friendList = this.client.getFriends();
+      groupList = this.client.getGroups();
       Runnable listenTask = () -> {
         client.listenMessage();
       };
@@ -275,11 +281,11 @@ public class AppSceneController implements Initializable{
       }
     }
 
-    public void setFriendList(Friend[] friendList) {
+    public void setFriendList(Set<Friend> friendList) {
       this.friendList = friendList;
     }
 
-    public void setGroupList(String[] groupList) {
+    public void setGroupList(Set<Group> groupList) {
       this.groupList = groupList;
     }
 
