@@ -81,15 +81,15 @@ public class SearchSceneController {
     }
 
     public void responseToSearch(Message message, FindTask task) {
-      if(task.getResult() == -1) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setContentText("查无此人/群");
-        a.setTitle("搜索失败");
-        a.show();
-        return;
-      }
       // 
       if(message.getType().equals("friend")) {
+        if(task.getResult() == -1) {
+          Alert a = new Alert(Alert.AlertType.ERROR);
+          a.setContentText("查无此人");
+          a.setTitle("搜索失败");
+          a.show();
+          return;
+        }
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setContentText("已添加");
         a.setTitle("搜索成功"); 
@@ -100,6 +100,16 @@ public class SearchSceneController {
         app.addFriend(friend);
       }
       else if(message.getType().equals("group")) {
+        if(task.getResult() == -1) {
+          Alert a = new Alert(Alert.AlertType.INFORMATION);
+          a.setContentText("新建群聊");
+          a.setTitle("已创建新群聊");
+          a.show();
+          AppSceneController app = App.getAppSceneController();
+          Group group = task.getGroup();
+          app.addGroup(group);
+          return;
+        }
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setContentText("已添加");
         a.setTitle("搜索成功"); 

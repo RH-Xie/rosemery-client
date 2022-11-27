@@ -10,9 +10,25 @@ public class Group {
   private int ownerID = 0;
   private HashSet<Friend> member = new HashSet<Friend>();
   private int state = 0;
+  private String name = "";
   private JSONObject jsonObject = null;
 
-  Group(int groupID, int state) {
+  public Group(int groupID, int ownerID, String name, HashSet<Friend> member, int state) {
+    this.groupID = groupID;
+    this.ownerID = ownerID;
+    this.name = name;
+    this.member = member;
+    this.state = state;
+
+    this.jsonObject = new JSONObject();
+    this.jsonObject.put("groupID", groupID);
+    this.jsonObject.put("ownerID", ownerID);
+    this.jsonObject.put("name", name);
+    this.jsonObject.put("member", member);
+    this.jsonObject.put("state", state);
+  }
+
+  public Group(int groupID, int state) {
     jsonObject = new JSONObject();
     this.groupID = groupID;
     this.state = state;
@@ -54,6 +70,12 @@ public class Group {
   public void setOwnerID(int ownerID) {
     this.ownerID = ownerID;
   }
+  public String getName() {
+    return name;
+  }
+  public void setName(String name) {
+    this.name = name;
+  }
 }
 
 class GroupList{
@@ -82,18 +104,5 @@ class GroupList{
       array.add(g.getJson());
     }
     this.jsonObject.put("groupList", array);
-  }
-
-  public static GroupList getGroupList(String json) {
-    // 未经测试，可能有bug
-    GroupList groupList = new GroupList();
-    JSONObject jsonObject = JSONObject.parseObject(json);
-    JSONArray array = jsonObject.getJSONArray("groupList");
-    for(int i = 0; i < array.size(); i++) {
-      JSONObject object = array.getJSONObject(i);
-      Group group = new Group(object.getIntValue("groupID"), object.getIntValue("state"));
-      groupList.addGroup(group);
-    }
-    return groupList;
   }
 }

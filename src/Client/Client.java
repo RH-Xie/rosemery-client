@@ -184,7 +184,10 @@ public class Client {
               FindTask findTask = (FindTask)tasks.pop();
               findTask.setFriend(friend);
               findTask.setDone();
-              
+              if(!message.getContent().equals("null")) {
+                findTask.setResult(Integer.parseInt(message.getContent()));
+              }
+              // 否则保持-1
             }
           } 
           else if (message.getChannel().equals("group")) {
@@ -201,12 +204,15 @@ public class Client {
             }
             else if (message.getType().equals("search")) {
               // 27号，在这里添加搜索的响应，包括前面的弹窗提示，都要纳入这后面更好
-              // System.out.println("【查找】成功响应，但暂无作用");
+              System.out.println("【查找】成功响应");
               String groupJson = inputFromServer.readUTF();
               Group group = JSON.parseObject(groupJson, Group.class);
               FindTask findTask = (FindTask)tasks.pop();
               findTask.setGroup(group);
               findTask.setDone();
+              if(!message.getContent().equals("null")) {
+                findTask.setResult(Integer.parseInt(message.getContent()));
+              }
             }
           }
           
@@ -558,16 +564,6 @@ public class Client {
         outputToServer.writeUTF(message.getJson());
         tasks.push(this);
         System.out.println("压栈：" + tasks.size());
-        // 接收搜索结果
-        // String json = inputFromServer.readUTF();
-        // Message response = JSON.parseObject(json, Message.class);
-        // if(response.getContent().equals("null")) {
-        //   // 默认-1，客户端那边需要辨认一下，-1为无结果，弹窗提示
-        //   return null;
-        // }
-        // this.result = 0;
-        // 结果就绪，通知UI更新
-        // this.isDone = true;
       }catch(Exception e) {
         System.out.println("FindTask 错误");
         e.printStackTrace();
@@ -579,13 +575,8 @@ public class Client {
       return this.isDone;
     }
 
-    public int getResult() {
-      return this.result;
-    }
-
     public void setDone() {
       this.isDone = true;
-      this.result = 0;
     }
 
     public void setFriend(Friend friend) {
@@ -605,7 +596,12 @@ public class Client {
       return this.group;
     }
 
-  } 
+    public void setResult(int result) {
+      this.result = result;
+    }
 
-
+    public int getResult() {
+      return this.result;
+    }
+  }
 }
