@@ -10,7 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
 public class JsonLoader {
-  public static MessageList loadFromFile(int senderID, int receiverID) {
+  public static MessageList loadFriendLog(int senderID, int receiverID) {
     int less = senderID < receiverID ? senderID : receiverID;
     int more = senderID > receiverID ? senderID : receiverID;
     String filename = "./src/Log/friend/" + less + "-" + more + ".json";
@@ -36,7 +36,7 @@ public class JsonLoader {
     }
   }
   
-  public static MessageList loadFromFile(int groupID) {
+  public static MessageList loadGroupLog(int groupID) {
     String filename = "./src/Log/group/" + groupID + ".json";
     Path path = Path.of(filename);
     if(!Files.exists(path)) {
@@ -59,7 +59,7 @@ public class JsonLoader {
   }
 
 
-  public static void saveToFile(MessageList messages) {
+  public static void saveFriendLog(MessageList messages) {
     if(messages == null) {
       return;
     }
@@ -91,7 +91,36 @@ public class JsonLoader {
       e.printStackTrace();
     }
   }
+
+  public static void saveGroupLog(MessageList messages, int groupID) {
+    if(messages == null) {
+      return;
+    }
+    Iterator<Message> iterator = messages.values().iterator();
+    Message firstMessage = iterator.next();
+    Path path = Path.of("./src/Log/" + firstMessage.getChannel() + "/" + groupID + ".json");
+    if(!Files.exists(path)) {
+      try {
+        Files.createFile(path);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    JSONArray jsonArray = new JSONArray();
+    for(Message message : messages.values()) {
+      MessageObject messageObject = new MessageObject();
+      messageObject.setMessage(message);
+      messageObject.setTimestamp(message.getTime());
+      jsonArray.add(messageObject);
+    }
+    try {
+      Files.writeString(path, jsonArray.toString());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 }
+
 
 class MessageObject {
   private long timestamp = 0;

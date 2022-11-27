@@ -8,6 +8,7 @@ public class Message {
   private String content;
   private int sender;
   private int receiver;
+  private int groupID;
   private JSONObject jsonObject = null;
 
   public Message() {
@@ -17,6 +18,7 @@ public class Message {
     this.sender = 0;
     this.receiver = 0;
     this.channel = "friend";
+    this.groupID = 0;
     this.jsonObject = new JSONObject();
   }
 
@@ -42,6 +44,10 @@ public class Message {
 
   public String getChannel() {
     return this.channel;
+  }
+
+  public int getGroupID() {
+    return this.groupID;
   }
 
   public String getJson() {
@@ -88,5 +94,10 @@ public class Message {
     this.jsonObject.put("channel", channel);
     return this;
   }
-}
 
+  public Message setGroupID(int groupID) {
+    this.groupID = groupID;
+    this.jsonObject.put("groupID", groupID);
+    return this;
+  }
+}

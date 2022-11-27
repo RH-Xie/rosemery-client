@@ -23,12 +23,13 @@ import Client.Client;
 import Client.Client.ReceiveFileTask;
 
 import java.awt.Desktop;
-import java.beans.EventHandler;
+
 
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -47,10 +48,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import shared.Friend;
 import shared.Group;
 import shared.JsonLoader;
@@ -62,6 +65,9 @@ import shared.Util;
 public class AppSceneController implements Initializable{
 
     private Client client = null;
+    private double xOffset;
+    private double yOffset;
+    private Stage appStage = App.getAppStage();
 
     @FXML
     private ListView<Friend> friendListView;
@@ -80,6 +86,9 @@ public class AppSceneController implements Initializable{
 
     @FXML
     private Pane titlePane;
+
+    @FXML
+    private AnchorPane topPane;
 
     @FXML
     private Button sendBtn;
@@ -189,27 +198,22 @@ public class AppSceneController implements Initializable{
         });
         loadHistory();
       });
-
-      // 切换Tab栏
-      // tabpane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-      //   textFlow.getChildren().clear();
-      //   ObservableList<Tab> tabs =  tabpane.getTabs();
-      //   if (newValue == tabs.get(0)) {
-      //     currentFriend = friendListView.getSelectionModel().getSelectedItem();
-      //     currentGroup = null;
-      //     if (currentFriend != null) {
-      //       talkingLabel.setText("与 " + currentFriend.getNickname() + " 聊天中");
-      //       loadHistory();
-      //     }
-      //   } else {
-      //     currentGroup = groupListView.getSelectionModel().getSelectedItem();
-      //     currentFriend = null;
-      //     if (currentGroup != null) {
-      //       talkingLabel.setText(currentGroup.getName() + " (" + currentGroup.getMember().size() + "人)");
-      //       loadHistory();
-      //     }
-      //   }
-      // });
+      
+      // 窗口拖拽
+      topPane.setOnMousePressed(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event) {
+            xOffset = appStage.getX() - event.getScreenX();
+            yOffset = appStage.getY() - event.getScreenY();
+        }
+      });
+      topPane.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent event) {
+          appStage.setX(event.getScreenX() + xOffset);
+          appStage.setY(event.getScreenY() + yOffset);
+        }
+      });
     }
 
     @Override
@@ -271,12 +275,12 @@ public class AppSceneController implements Initializable{
       }
       if(currentFriend != null) {
         Platform.runLater(() -> {
-          JsonLoader.saveToFile(friendChatList.get(currentFriend.getId()));
+          JsonLoader.saveFriendLog(friendChatList.get(currentFriend.getId()));
         });
       }
       else if(currentGroup != null) {
         Platform.runLater(() -> {
-          JsonLoader.saveToFile(groupChatList.get(currentGroup.getGroupID()));
+          JsonLoader.saveGroupLog(groupChatList.get(currentGroup.getGroupID()), currentGroup.getGroupID());
         });
       }
     }
@@ -330,7 +334,7 @@ public class AppSceneController implements Initializable{
   
         Platform.runLater(() -> {
           addFile(message, file);
-          JsonLoader.saveToFile(friendChatList.get(currentFriend.getId()));
+          JsonLoader.saveFriendLog(friendChatList.get(currentFriend.getId()));
         });
       }
       else {
@@ -355,7 +359,12 @@ public class AppSceneController implements Initializable{
 
     public void saveChat() {
       for(MessageList messageList : friendChatList.values()) {
-        JsonLoader.saveToFile(messageList);
+        JsonLoader.saveFriendLog(messageList);
+      }
+      for(MessageList messageList : groupChatList.values()) {
+        Message firstMessage = messageList.values().iterator().next();
+        int groupID = firstMessage.getGroupID();
+        JsonLoader.saveGroupLog(messageList, groupID);
       }
     }
     public void addHistory(Message message) {
@@ -369,6 +378,18 @@ public class AppSceneController implements Initializable{
           MessageList messageList = new MessageList();
           messageList.put(timestamp, message);
           friendChatList.put(senderID, messageList);
+        }
+      }
+      else if(message.getChannel().equals("group")) {
+        long timestamp = message.getTime();
+        int groupID = message.getGroupID();
+        if(groupChatList.containsKey(groupID)) {
+          groupChatList.get(groupID).put(timestamp, message);
+        }
+        else {
+          MessageList messageList = new MessageList();
+          messageList.put(timestamp, message);
+          groupChatList.put(groupID, messageList);
         }
       }
     }
@@ -423,7 +444,7 @@ public class AppSceneController implements Initializable{
           System.out.println("内存：" + messageList);
         }
         else {
-          MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
+          MessageList messageList = JsonLoader.loadFriendLog(client.getUserID(), currentFriend.getId());
           if(messageList == null) {
             System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
             textFlow.getChildren().addAll(new Label("你们已经是好友啦！\n"));
@@ -448,7 +469,7 @@ public class AppSceneController implements Initializable{
           System.out.println("内存：" + messageList);
         }
         else {
-          MessageList messageList = JsonLoader.loadFromFile(currentGroup.getGroupID());
+          MessageList messageList = JsonLoader.loadGroupLog(currentGroup.getGroupID());
           if(messageList == null) {
             System.out.println("打开了未曾聊天的群组: " + currentGroup.getGroupID());
             textFlow.getChildren().addAll(new Label("欢迎加入新群聊\n"));
