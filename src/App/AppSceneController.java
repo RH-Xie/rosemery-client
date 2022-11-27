@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.event.ChangeListener;
+
 import Client.Client;
 import Client.Client.ReceiveFileTask;
 
@@ -24,6 +26,8 @@ import java.awt.Desktop;
 import java.beans.EventHandler;
 
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -34,6 +38,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert.AlertType;
@@ -65,7 +70,7 @@ public class AppSceneController implements Initializable{
     private ListView<Group> groupListView;
 
     @FXML
-    private TabPane tabPane;
+    private TabPane tabpane;
     
     @FXML
     private TextArea inputTextArea;
@@ -90,13 +95,19 @@ public class AppSceneController implements Initializable{
 
     @FXML
     private ImageView addBtn;
+    
+    @FXML
+    private Tab friendTab;
+
+    @FXML
+    private Tab groupTab;
 
     public ExecutorService pool;
     public Set<Friend> friendList = new HashSet<>();
     // Request groupList from server
     public Set<Group> groupList = new HashSet<>();
     public ConcurrentHashMap<Integer, MessageList> friendChatList = new ConcurrentHashMap<Integer, MessageList>();
-
+    public ConcurrentHashMap<Integer, MessageList> groupChatList = new ConcurrentHashMap<Integer, MessageList>();
     public Friend currentFriend = null;
     public Group currentGroup = null;
 
@@ -154,21 +165,51 @@ public class AppSceneController implements Initializable{
       System.out.println("Initializing " + location);
       // Load the chat history
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        if(newValue == null) return;
         textFlow.getChildren().clear();
         currentFriend = newValue;
+        currentGroup = null;
         talkingLabel.setText("与 " + newValue.getNickname() + " 聊天中");
+        Platform.runLater(() -> {
+          groupListView.getSelectionModel().clearSelection();
+        });
         // Load from memory
         loadHistory();
       });
 
       groupListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        if(newValue == null) return;
         textFlow.getChildren().clear();
         currentGroup = newValue;
+        currentFriend = null;
         talkingLabel.setText(newValue.getName() + " (" + newValue.getMember().size() + "人)");
         // Load from memory
+        Platform.runLater(() -> {
+          friendListView.getSelectionModel().clearSelection();
+        });
         loadHistory();
       });
 
+      // 切换Tab栏
+      // tabpane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      //   textFlow.getChildren().clear();
+      //   ObservableList<Tab> tabs =  tabpane.getTabs();
+      //   if (newValue == tabs.get(0)) {
+      //     currentFriend = friendListView.getSelectionModel().getSelectedItem();
+      //     currentGroup = null;
+      //     if (currentFriend != null) {
+      //       talkingLabel.setText("与 " + currentFriend.getNickname() + " 聊天中");
+      //       loadHistory();
+      //     }
+      //   } else {
+      //     currentGroup = groupListView.getSelectionModel().getSelectedItem();
+      //     currentFriend = null;
+      //     if (currentGroup != null) {
+      //       talkingLabel.setText(currentGroup.getName() + " (" + currentGroup.getMember().size() + "人)");
+      //       loadHistory();
+      //     }
+      //   }
+      // });
     }
 
     @Override
@@ -178,26 +219,43 @@ public class AppSceneController implements Initializable{
 
     @FXML
     void onSendMessage(ActionEvent event) {
-      if(currentFriend == null || inputTextArea.getText().equals("")) {
-        System.out.println("No friend selected / No message input");
+      if((currentFriend == null && currentGroup == null) || inputTextArea.getText().equals("")) {
+        System.out.println("No friend or group selected / No message input");
         return;
       }
       Message message = new Message();
       message.setTime(System.currentTimeMillis());
       message.setType("text");
       message.setSender(client.getUserID());
-      message.setReceiver(currentFriend.getId());
       message.setContent(inputTextArea.getText());
-      message.setChannel("friend");
-      // Add new message to memery
-      if(friendChatList.containsKey(currentFriend.getId())) {
-        friendChatList.get(currentFriend.getId()).put(message.getTime(), message);
+      if(currentFriend != null) {
+        message.setReceiver(currentFriend.getId());
+        message.setChannel("friend");
+        // Add new message to memory
+        if(friendChatList.containsKey(currentFriend.getId())) {
+          friendChatList.get(currentFriend.getId()).put(message.getTime(), message);
+        }
+        else {
+          MessageList messageList = new MessageList();
+          messageList.put(message.getTime(), message);
+          friendChatList.put(currentFriend.getId(), messageList);
+        }
       }
-      else {
-        MessageList messageList = new MessageList();
-        messageList.put(message.getTime(), message);
-        friendChatList.put(currentFriend.getId(), messageList);
+      else if(currentGroup != null) {
+        message.setReceiver(currentGroup.getGroupID());
+        message.setChannel("group");
+
+        // Add new message to memory
+        if(groupChatList.containsKey(currentGroup.getGroupID())) {
+          groupChatList.get(currentGroup.getGroupID()).put(message.getTime(), message);
+        }
+        else {
+          MessageList messageList = new MessageList();
+          messageList.put(message.getTime(), message);
+          groupChatList.put(currentGroup.getGroupID(), messageList);
+        }
       }
+
 
       // "[" + new Date(message.getTime()) + "]" + 
       Platform.runLater(() -> {
@@ -211,9 +269,16 @@ public class AppSceneController implements Initializable{
       } catch (IOException e) {
         e.printStackTrace();
       }
-      Platform.runLater(() -> {
-        JsonLoader.saveToFile(friendChatList.get(currentFriend.getId()));
-      });
+      if(currentFriend != null) {
+        Platform.runLater(() -> {
+          JsonLoader.saveToFile(friendChatList.get(currentFriend.getId()));
+        });
+      }
+      else if(currentGroup != null) {
+        Platform.runLater(() -> {
+          JsonLoader.saveToFile(groupChatList.get(currentGroup.getGroupID()));
+        });
+      }
     }
     
     @FXML
@@ -347,35 +412,58 @@ public class AppSceneController implements Initializable{
     }
 
     public void loadHistory() {
-      if(currentFriend == null) {
-        return;
-      }
-      if(currentFriend.getId() == client.getUserID()) {
-        textFlow.getChildren().addAll(new Label("你们已经是好友啦！\n"));
-        return;
-      }
-      if (friendChatList.containsKey(currentFriend.getId())) {
-        MessageList messageList = friendChatList.get(currentFriend.getId());
-        Util.sortByKey(messageList);
-        System.out.println("内存：" + messageList);
-      }
-      else {
-        MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
-        if(messageList == null) {
-          System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
+      if(currentFriend != null) {
+        if(currentFriend.getId() == client.getUserID()) {
           textFlow.getChildren().addAll(new Label("你们已经是好友啦！\n"));
           return;
         }
-        else {
-          // Load from disk
-          friendChatList.put(currentFriend.getId(), messageList);
-          messageList = friendChatList.get(currentFriend.getId());
+        if (friendChatList.containsKey(currentFriend.getId())) {
+          MessageList messageList = friendChatList.get(currentFriend.getId());
           Util.sortByKey(messageList);
-          System.out.println("硬盘：" + messageList);
+          System.out.println("内存：" + messageList);
         }
-
+        else {
+          MessageList messageList = JsonLoader.loadFromFile(client.getUserID(), currentFriend.getId());
+          if(messageList == null) {
+            System.out.println("打开了未曾聊天的用户: " + currentFriend.getId());
+            textFlow.getChildren().addAll(new Label("你们已经是好友啦！\n"));
+            return;
+          }
+          else {
+            // Load from disk
+            friendChatList.put(currentFriend.getId(), messageList);
+            messageList = friendChatList.get(currentFriend.getId());
+            Util.sortByKey(messageList);
+            System.out.println("硬盘：" + messageList);
+          }
+  
+        }
+  
       }
 
+      else if(currentGroup != null) {
+        if (groupChatList.containsKey(currentGroup.getGroupID())) {
+          MessageList messageList = groupChatList.get(currentGroup.getGroupID());
+          Util.sortByKey(messageList);
+          System.out.println("内存：" + messageList);
+        }
+        else {
+          MessageList messageList = JsonLoader.loadFromFile(currentGroup.getGroupID());
+          if(messageList == null) {
+            System.out.println("打开了未曾聊天的群组: " + currentGroup.getGroupID());
+            textFlow.getChildren().addAll(new Label("欢迎加入新群聊\n"));
+            return;
+          }
+          else {
+            // Load from disk
+            groupChatList.put(currentGroup.getGroupID(), messageList);
+            messageList = groupChatList.get(currentGroup.getGroupID());
+            Util.sortByKey(messageList);
+            System.out.println("硬盘：" + messageList);
+          }
+  
+        }
+      }
     }
 
     public void addText(Message message) {

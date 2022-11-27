@@ -28,11 +28,11 @@ public class Group {
     this.jsonObject.put("state", state);
   }
 
-  public Group(int groupID, int state) {
-    jsonObject = new JSONObject();
-    this.groupID = groupID;
-    this.state = state;
-  }
+  // public Group(int groupID, int state) {
+  //   jsonObject = new JSONObject();
+  //   this.groupID = groupID;
+  //   this.state = state;
+  // }
 
   public Group() {
     this.jsonObject = new JSONObject();
@@ -69,12 +69,14 @@ public class Group {
   }
   public void setOwnerID(int ownerID) {
     this.ownerID = ownerID;
+    this.jsonObject.put("ownerID", ownerID);
   }
   public String getName() {
     return name;
   }
   public void setName(String name) {
     this.name = name;
+    this.jsonObject.put("name", name);
   }
 }
 

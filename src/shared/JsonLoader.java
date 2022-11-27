@@ -27,13 +27,6 @@ public class JsonLoader {
         Message message = messageObject.getMessage();
         // BUG: message sender and receiver are not set
         messages.put(messageObject.getTimestamp(), message);
-        System.out.println("Loading " + JSON.toJSONString(jsonObject));
-        System.out.println("内容：" + message.getContent());
-        System.out.println("时间：" + message.getTime());
-        System.out.println("类型：" + message.getType());
-        System.out.println("发送者：" + message.getSender());
-        System.out.println("接收者：" + message.getReceiver());
-        System.out.println("频道：" + message.getChannel());
       }
       
       return messages;
@@ -43,6 +36,29 @@ public class JsonLoader {
     }
   }
   
+  public static MessageList loadFromFile(int groupID) {
+    String filename = "./src/Log/group/" + groupID + ".json";
+    Path path = Path.of(filename);
+    if(!Files.exists(path)) {
+      return null;
+    }
+    try {
+      String jsonString = Files.readString(path);
+      JSONArray jsonArray = JSON.parseArray(jsonString);
+      MessageList messages = new MessageList();
+      for(Object jsonObject : jsonArray) {
+        MessageObject messageObject = JSON.parseObject(JSON.toJSONString(jsonObject), MessageObject.class);
+        Message message = messageObject.getMessage();
+        messages.put(messageObject.getTimestamp(), message);
+      }
+      return messages;
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+
   public static void saveToFile(MessageList messages) {
     if(messages == null) {
       return;

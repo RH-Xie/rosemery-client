@@ -191,6 +191,7 @@ public class Client {
             }
           } 
           else if (message.getChannel().equals("group")) {
+            System.out.println("回应");
             // Receive new message from group
             if (message.getType().equals("file")) {
               Platform.runLater(() -> {
@@ -207,6 +208,8 @@ public class Client {
               System.out.println("【查找】成功响应");
               String groupJson = inputFromServer.readUTF();
               Group group = JSON.parseObject(groupJson, Group.class);
+              System.out.println("json: " + groupJson);
+              System.out.println("object: " + group.getJson());
               FindTask findTask = (FindTask)tasks.pop();
               findTask.setGroup(group);
               findTask.setDone();
@@ -279,8 +282,6 @@ public class Client {
         file.createNewFile();
       }
       JSONArray array = new JSONArray();
-      System.out.println("保存好友");
-      System.out.println("长度：" + friends.size());
       for(Friend friend : this.friends) {
         array.add(friend);
       }
@@ -403,7 +404,6 @@ public class Client {
       SendFileTask sendFileTask = new SendFileTask(message, file);
       this.pool.submit(sendFileTask);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
