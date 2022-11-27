@@ -24,6 +24,24 @@ public class User {
     this.jsonObject.put("password", password);
   }
 
+  public User(int id, String password, String nickname, String avatar, String signature, String token, HashMap<Integer, Group> groupList) {
+    this.id = id;
+    this.password = password;
+    this.nickname = nickname;
+    this.avatar = avatar;
+    this.signature = signature;
+    this.token = token;
+    this.groupList = groupList;
+
+    this.jsonObject = new JSONObject();
+    this.jsonObject.put("id", id);
+    this.jsonObject.put("password", password);
+    this.jsonObject.put("nickname", nickname);
+    this.jsonObject.put("avatar", avatar);
+    this.jsonObject.put("signature", signature);
+    this.jsonObject.put("token", token);
+  }
+
   public int getId() {
     return this.id;
   }
@@ -84,3 +102,4 @@ public class User {
     return this;
   } 
 }
+

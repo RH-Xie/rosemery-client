@@ -289,6 +289,20 @@ public class AppSceneController implements Initializable{
       this.groupList = groupList;
     }
 
+    public void addFriend(Friend friend) {
+      friendList.add(friend);
+      Platform.runLater(() -> {
+        friendListView.getItems().add(friend);
+      });
+    }
+
+    public void addGroup(Group group) {
+      groupList.add(group);
+      Platform.runLater(() -> {
+        groupListView.getItems().add(group);
+      });
+    }
+
     public void loadHistory() {
       if(currentFriend == null) {
         return;

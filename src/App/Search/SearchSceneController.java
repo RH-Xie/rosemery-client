@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.concurrent.Callable;
 
+import App.App;
+import App.AppSceneController;
 import Client.Client;
 import Client.Client.FindTask;
 import javafx.event.ActionEvent;
@@ -20,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import shared.Friend;
+import shared.Group;
 import shared.Message;
 
 public class SearchSceneController {
@@ -70,6 +73,14 @@ public class SearchSceneController {
           e.printStackTrace();
         }
       }
+      responseToSearch(message, task);
+    }
+
+    public void setClient(Client client) {
+      this.client = client;
+    }
+
+    public void responseToSearch(Message message, FindTask task) {
       if(task.getResult() == -1) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setContentText("查无此人/群");
@@ -83,18 +94,21 @@ public class SearchSceneController {
         a.setContentText("已添加");
         a.setTitle("搜索成功"); 
         a.show();
-        System.out.println("该添加朋友了");
+        AppSceneController app = App.getAppSceneController();
+        Friend friend = task.getFriend();
+        System.out.println(friend.getJson());
+        app.addFriend(friend);
       }
       else if(message.getType().equals("group")) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setContentText("已添加");
         a.setTitle("搜索成功"); 
         a.show();
-        System.out.println("该添加群组了");
+        AppSceneController app = App.getAppSceneController();
+        Group group = task.getGroup();
+        System.out.println(group.getJson());
+        app.addGroup(group);
       }
-    }
 
-    public void setClient(Client client) {
-      this.client = client;
     }
   }

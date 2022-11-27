@@ -170,9 +170,41 @@ public class Client {
               });
             }
             if(message.getType().equals("search")) {
-              System.out.println("【查找】成功响应，但暂无作用");
+              // 27号，在这里添加搜索的响应，包括前面的弹窗提示，都要纳入这后面更好
+              // System.out.println("【查找】成功响应，但暂无作用");
+              String friendJson = inputFromServer.readUTF();
+              Friend friend = JSON.parseObject(friendJson, Friend.class);
+              FindTask findTask = (FindTask)tasks.pop();
+              findTask.setFriend(friend);
+              System.out.println("朋友json: " + friend.getJson());
+              findTask.setDone();
+              
             }
-          } else {
+          } 
+          else if (message.getChannel().equals("group")) {
+            // Receive new message from group
+            if (message.getType().equals("file")) {
+              Platform.runLater(() -> {
+                appSceneController.addFile(message, null);
+              });
+            }
+            else if (message.getType().equals("text")) {
+              Platform.runLater(() -> {
+                appSceneController.addText(message);
+              });
+            }
+            else if (message.getType().equals("search")) {
+              // 27号，在这里添加搜索的响应，包括前面的弹窗提示，都要纳入这后面更好
+              // System.out.println("【查找】成功响应，但暂无作用");
+              String groupJson = inputFromServer.readUTF();
+              Group group = JSON.parseObject(groupJson, Group.class);
+              FindTask findTask = (FindTask)tasks.pop();
+              findTask.setGroup(group);
+              findTask.setDone();
+            }
+          }
+          
+          else {
             System.out.println("未知的消息频道（未完善群聊）");
           }
         }
@@ -262,8 +294,6 @@ public class Client {
 
       SendFileTask sendFileTask = new SendFileTask(message, file);
       this.pool.submit(sendFileTask);
-      this.tasks.push(sendFileTask);
-      System.out.println("压栈：" + tasks.size());
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -407,6 +437,8 @@ public class Client {
     private Message message;
     private boolean isDone;
     private int result;
+    private Friend friend;
+    private Group group;
 
     public FindTask(Message message) {
       this.message = message;
@@ -422,16 +454,18 @@ public class Client {
         outputToServer.writeUTF("search");
         // 发送搜索字段
         outputToServer.writeUTF(message.getJson());
+        tasks.push(this);
+        System.out.println("压栈：" + tasks.size());
         // 接收搜索结果
-        String json = inputFromServer.readUTF();
-        Message response = JSON.parseObject(json, Message.class);
-        if(response.getContent().equals("null")) {
-          // 默认-1，客户端那边需要辨认一下，-1为无结果，弹窗提示
-          return null;
-        }
-        this.result = 0;
+        // String json = inputFromServer.readUTF();
+        // Message response = JSON.parseObject(json, Message.class);
+        // if(response.getContent().equals("null")) {
+        //   // 默认-1，客户端那边需要辨认一下，-1为无结果，弹窗提示
+        //   return null;
+        // }
+        // this.result = 0;
         // 结果就绪，通知UI更新
-        this.isDone = true;
+        // this.isDone = true;
       }catch(Exception e) {
         System.out.println("FindTask 错误");
         e.printStackTrace();
@@ -445,6 +479,27 @@ public class Client {
 
     public int getResult() {
       return this.result;
+    }
+
+    public void setDone() {
+      this.isDone = true;
+      this.result = 0;
+    }
+
+    public void setFriend(Friend friend) {
+      this.friend = friend;
+    }
+
+    public Friend getFriend() {
+      return this.friend;
+    }
+
+    public void setGroup(Group group) {
+      this.group = group;
+    }
+
+    public Group getGroup() {
+      return this.group;
     }
 
   } 
