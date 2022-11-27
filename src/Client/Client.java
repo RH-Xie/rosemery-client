@@ -1,9 +1,12 @@
 package Client;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -17,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 
 import App.App;
 import App.AppSceneController;
@@ -109,6 +113,10 @@ public class Client {
             // 更新本地
             AppSceneController controller = App.getAppSceneController();
             // controller.saveChat();
+            // 保存好友列表和群聊列表
+            saveFriends();
+            saveGroups();
+
           } catch (InterruptedException e) {
             e.printStackTrace();
           } catch (IOException e) {
@@ -151,7 +159,6 @@ public class Client {
         this.inputFromServer = new DataInputStream(socket.getInputStream());
         String operation = this.inputFromServer.readUTF();
         AppSceneController appSceneController = App.getAppSceneController();
-        SearchSceneController searchSceneController = App.getSearchSceneController();
         // 消息响应
         if (operation.equals("reponseMessage")) {
           String messageJsonString = this.inputFromServer.readUTF();
@@ -176,7 +183,6 @@ public class Client {
               Friend friend = JSON.parseObject(friendJson, Friend.class);
               FindTask findTask = (FindTask)tasks.pop();
               findTask.setFriend(friend);
-              System.out.println("朋友json: " + friend.getJson());
               findTask.setDone();
               
             }
@@ -232,6 +238,10 @@ public class Client {
     this.user = new User(id, password);
   }
 
+  public void setUser(User user) {
+    this.user = user;
+  }
+
   public void setHost(String host) {
     this.host = host;
   }
@@ -256,7 +266,56 @@ public class Client {
     return this.outputToServer;
   }
 
+  public void saveFriends() {
+    try {
+      File file = new File("./src/data/friends.json");
+      if (!file.exists()) {
+        file.createNewFile();
+      }
+      JSONArray array = new JSONArray();
+      System.out.println("保存好友");
+      System.out.println("长度：" + friends.size());
+      for(Friend friend : this.friends) {
+        array.add(friend);
+      }
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
+      DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
+      dataOutputStream.writeUTF(array.toString());
+      dataOutputStream.close();
+      fileOutputStream.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void loadFriends() {
+    try {
+      File file = new File("./src/data/friends.json");
+      if (!file.exists()) {
+        file.createNewFile();
+      }
+      FileInputStream fileInputStream = new FileInputStream(file);
+      DataInputStream dataInputStream = new DataInputStream(fileInputStream);
+      String json = dataInputStream.readUTF();
+      JSONArray jsonArray = JSON.parseArray(json);
+      System.out.println("读取好友");
+      System.out.println("长度：" + jsonArray.size());
+      for(Object o : jsonArray) {
+        Friend friend = JSON.parseObject(JSON.toJSONString(o), Friend.class);
+        friends.add(friend);
+        System.out.println("好友：" + friend.getJson());
+      }
+      dataInputStream.close();
+      fileInputStream.close();
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
+
   public Set<Friend> getFriends() {
+    loadFriends();
     return this.friends;
   }
 
@@ -272,7 +331,50 @@ public class Client {
     this.friends.remove(friend);
   }
 
+  public void saveGroups() {
+    try {
+      File file = new File("./src/data/groups.json");
+      if (!file.exists()) {
+        file.createNewFile();
+      }
+      JSONArray array = new JSONArray();
+      for(Group g : groups) {
+        array.add(g);
+      }
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
+      DataOutputStream dataOutputStream = new DataOutputStream(fileOutputStream);
+      dataOutputStream.writeUTF(array.toString());
+      dataOutputStream.close();
+      fileOutputStream.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void loadGroups() {
+    try {
+      File file = new File("./src/data/groups.json");
+      if (!file.exists()) {
+        file.createNewFile();
+      }
+      FileInputStream fileInputStream = new FileInputStream(file);
+      DataInputStream dataInputStream = new DataInputStream(fileInputStream);
+      String json = dataInputStream.readUTF();
+      JSONArray jsonArray = JSON.parseArray(json);
+      for(Object o : jsonArray) {
+        Group u = JSON.parseObject(JSON.toJSONString(o), Group.class);
+        groups.add(u);
+      }
+      dataInputStream.close();
+      fileInputStream.close();
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   public Set<Group> getGroups() {
+    loadGroups();
     return this.groups;
   }
 
@@ -499,6 +601,7 @@ public class Client {
     }
 
     public Group getGroup() {
+      loadGroups();
       return this.group;
     }
 

@@ -11,6 +11,7 @@ public class User {
   private String avatar =  "./avatar/1.jpg";
   private String nickname = "";
   private String signature = "";
+  private HashMap<Integer, Friend> friendList = new HashMap<Integer, Friend>();
   private HashMap<Integer, Group> groupList = null;
   
   JSONObject jsonObject = null;
@@ -24,13 +25,14 @@ public class User {
     this.jsonObject.put("password", password);
   }
 
-  public User(int id, String password, String nickname, String avatar, String signature, String token, HashMap<Integer, Group> groupList) {
+  public User(int id, String password, String nickname, String avatar, String signature, String token, HashMap<Integer, Group> groupList, HashMap<Integer, Friend> friendList) {
     this.id = id;
     this.password = password;
     this.nickname = nickname;
     this.avatar = avatar;
     this.signature = signature;
     this.token = token;
+    this.friendList = friendList;
     this.groupList = groupList;
 
     this.jsonObject = new JSONObject();
@@ -40,6 +42,8 @@ public class User {
     this.jsonObject.put("avatar", avatar);
     this.jsonObject.put("signature", signature);
     this.jsonObject.put("token", token);
+    this.jsonObject.put("friendList", friendList);
+    this.jsonObject.put("groupList", groupList);
   }
 
   public int getId() {
@@ -74,6 +78,10 @@ public class User {
     return this.groupList;
   }
 
+  public HashMap<Integer, Friend> getFriendList() {
+    return this.friendList;
+  }
+
   // Setters
   public void setToken(String token) {
     this.token = token;
@@ -87,6 +95,16 @@ public class User {
       jsonArray.add(group.getJson());
     }
     this.jsonObject.put("groupList", this.groupList);
+    return this;
+  }
+
+  public User setFriendList(HashMap<Integer, Friend> friendList) {
+    this.friendList = friendList;
+    JSONArray jsonArray = new JSONArray();
+    for(Friend friend : friendList.values()) {
+      jsonArray.add(friend.getJson());
+    }
+    this.jsonObject.put("friendList", jsonArray);
     return this;
   }
 

@@ -252,8 +252,12 @@ public class AppSceneController implements Initializable{
 
     public boolean setClient(Client client) {
       this.client = client;
+      // 读取好友列表、更新
       friendList = this.client.getFriends();
+      updateFriends();
+      // 读取群组列表、更新
       groupList = this.client.getGroups();
+      updateGroups();
       Runnable listenTask = () -> {
         client.listenMessage();
       };
@@ -291,6 +295,7 @@ public class AppSceneController implements Initializable{
 
     public void addFriend(Friend friend) {
       friendList.add(friend);
+      client.saveFriends();
       Platform.runLater(() -> {
         friendListView.getItems().add(friend);
       });
@@ -298,8 +303,23 @@ public class AppSceneController implements Initializable{
 
     public void addGroup(Group group) {
       groupList.add(group);
+      client.saveGroups();
       Platform.runLater(() -> {
         groupListView.getItems().add(group);
+      });
+    }
+
+    public void updateFriends() {
+      Platform.runLater(() -> {
+        friendListView.getItems().clear();
+        friendListView.getItems().addAll(friendList);
+      });
+    }
+
+    public void updateGroups() {
+      Platform.runLater(() -> {
+        groupListView.getItems().clear();
+        groupListView.getItems().addAll(groupList);
       });
     }
 
