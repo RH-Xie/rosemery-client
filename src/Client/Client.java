@@ -359,6 +359,8 @@ public class Client {
   }
 
   public void loadGroups() {
+    // outputToServer.writeUTF();
+    // 后续可以完善直接请求服务器的，因为存在本地的群聊信息可能不是最新的
     try {
       File file = new File("./src/data/groups.json");
       if (!file.exists()) {

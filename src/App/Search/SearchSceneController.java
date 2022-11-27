@@ -47,6 +47,43 @@ public class SearchSceneController {
       if(System.currentTimeMillis() - timestamp < 500) {
         return;
       }
+      // 验重
+      try{
+        int input = Integer.parseInt(searchInput.getText());
+        if(input == client.getUserID()) {
+          Alert alert = new Alert(Alert.AlertType.ERROR);
+          alert.setContentText("不能添加自己为好友");
+          alert.show();
+          return;
+        }
+        if(friendRadio.isSelected()) {
+          for(Friend friend : client.getFriends()) {
+            if(friend.getId() == input) {
+              Alert alert = new Alert(Alert.AlertType.INFORMATION);
+              alert.setContentText("已经是好友了");
+              alert.show();
+              return;
+            }
+          }
+  
+        }
+        if(groupRadio.isSelected()) {
+          for(Group group : client.getGroups()) {
+            if(group.getGroupID() == input) {
+              Alert alert = new Alert(Alert.AlertType.INFORMATION);
+              alert.setContentText("已经在群里了");
+              alert.show();
+              return;
+            }
+          }
+        }
+      }catch(Exception e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setContentText("请输入数字");
+        alert.show();
+        return;
+      }
+
       timestamp = System.currentTimeMillis();
       Message message = new Message();
       message.setSender(client.getUserID());
