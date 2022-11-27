@@ -98,6 +98,7 @@ public class AppSceneController implements Initializable{
     public ConcurrentHashMap<Integer, MessageList> friendChatList = new ConcurrentHashMap<Integer, MessageList>();
 
     public Friend currentFriend = null;
+    public Group currentGroup = null;
 
     @Override
     public void initialize(java.net.URL location, java.util.ResourceBundle resources) {
@@ -105,6 +106,7 @@ public class AppSceneController implements Initializable{
       System.out.println("Friends: " + friendList.size());
       this.pool = Executors.newFixedThreadPool(20);
       friendListView.getItems().addAll(friendList);
+      // Cutomize the friend list view cells
       friendListView.setCellFactory(param -> new ListCell<Friend>() {
         @Override
         protected void updateItem(Friend friend, boolean empty) {
@@ -125,10 +127,31 @@ public class AppSceneController implements Initializable{
         }
       });
 
+      groupListView.getItems().addAll(groupList);
+      // Cutomize the friend list view cells
+      groupListView.setCellFactory(param -> new ListCell<Group>() {
+        @Override
+        protected void updateItem(Group group, boolean empty) {
+          super.updateItem(group, empty);
+
+          if (empty || group == null || group.getName() == null) {
+              setText(null);
+          } else {
+            // 设置选择栏的好友显示
+              ImageView avatar = new ImageView("./avatar/1.jpg");
+              avatar.setFitHeight(40);
+              avatar.setFitWidth(40);
+              setGraphic(avatar);
+              setText(group.getName());
+          }
+  
+        }
+      });
+
+
 
       
       System.out.println("Initializing " + location);
-      groupListView.getItems().addAll(groupList);
       // Load the chat history
       friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
         textFlow.getChildren().clear();
@@ -138,13 +161,13 @@ public class AppSceneController implements Initializable{
         loadHistory();
       });
 
-      // friendListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-      //   textFlow.getChildren().clear();
-      //   currentFriend = newValue;
-      //   talkingLabel.setText("与 " + newValue.getNickname() + " 聊天中");
-      //   // Load from memory
-      //   loadHistory();
-      // });
+      groupListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        textFlow.getChildren().clear();
+        currentGroup = newValue;
+        talkingLabel.setText(newValue.getName() + " (" + newValue.getMember().size() + "人)");
+        // Load from memory
+        loadHistory();
+      });
 
     }
 
