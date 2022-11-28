@@ -50,7 +50,7 @@ public class SearchSceneController {
       // 验重
       try{
         int input = Integer.parseInt(searchInput.getText());
-        if(input == client.getUserID()) {
+        if(input == client.getUserID() && friendRadio.isSelected()) {
           Alert alert = new Alert(Alert.AlertType.ERROR);
           alert.setContentText("不能添加自己为好友");
           alert.show();

@@ -1,1 +1,1 @@
-2[{"groupID":1,"json":"{\"groupID\":1,\"name\":\"群1\",\"state\":0,\"ownerID\":2}","member":[{"avatar":"./avatar/1.jpg","id":2,"json":"{\"signature\":\"\",\"nickname\":\"二号选手\",\"avatar\":\"./avatar/1.jpg\",\"id\":2}","nickname":"二号选手","signature":""}],"name":"群1","ownerID":2,"state":0}]
+2[{"groupID":1,"json":"{\"groupID\":1,\"name\":\"群1\",\"state\":0,\"ownerID\":1}","member":[{"avatar":"./avatar/1.jpg","id":1,"json":"{\"signature\":\"\",\"nickname\":\"一号选手\",\"avatar\":\"./avatar/1.jpg\",\"id\":1}","nickname":"一号选手","signature":""}],"name":"群1","ownerID":1,"state":0}]
